@@ -341,7 +341,19 @@
             </div>
 
             <!-- Footer Step 1 -->
-            <div id="payment-footer-form" class="p-6 border-t bg-slate-50">
+            <div id="payment-footer-form" class="p-6 border-t bg-slate-50 space-y-3">
+                <!-- Redeem Poin -->
+                <div id="redeem-points-section" class="hidden bg-indigo-50 rounded-2xl p-3 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <p class="text-[9px] font-black text-indigo-600 uppercase">Pakai Poin</p>
+                        <p class="text-[8px] text-indigo-400 font-bold">Punya: <span id="checkout-points-available">0</span> poin</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input id="checkout-points-input" type="number" min="1" placeholder="Jumlah poin" class="flex-1 bg-white border border-indigo-100 px-3 py-2 rounded-xl text-[9px] font-bold outline-none">
+                        <button onclick="applyPoints()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase">Pakai</button>
+                    </div>
+                    <p id="checkout-points-msg" class="text-[8px] font-bold text-indigo-500 hidden"></p>
+                </div>
                 <button onclick="submitPaymentForm()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase shadow-lg active:scale-[0.98] transition-all">
                     Buat Invoice Pembayaran
                 </button>
@@ -425,12 +437,33 @@
                     <div class="bg-indigo-50 rounded-2xl p-4 text-center">
                         <p id="buyer-profile-points" class="text-xl font-black text-indigo-700">0</p>
                         <p class="text-[8px] font-black text-indigo-400 uppercase mt-1">Poin</p>
+                        <p class="text-[7px] text-indigo-300 font-bold mt-0.5">= Rp<span id="buyer-profile-points-rp">0</span></p>
                     </div>
                     <div class="bg-slate-50 rounded-2xl p-4 text-center">
                         <p id="buyer-profile-orders" class="text-xl font-black text-slate-700">0</p>
                         <p class="text-[8px] font-black text-slate-400 uppercase mt-1">Total Order</p>
                     </div>
                 </div>
+
+                <!-- Referral Code -->
+                <div class="bg-indigo-50 rounded-2xl p-4 space-y-2">
+                    <p class="text-[9px] font-black text-indigo-600 uppercase">🎁 Kode Referral Kamu</p>
+                    <div class="flex gap-2 items-center">
+                        <p id="buyer-referral-code" class="flex-1 font-black text-indigo-800 text-xs tracking-widest bg-white rounded-xl px-3 py-2 border border-indigo-100 truncate">-</p>
+                        <button onclick="copyReferralCode()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase">Salin</button>
+                    </div>
+                    <p class="text-[8px] text-indigo-400 font-bold">Teman yang pakai kode ini saat daftar? Kamu dapat +1.000 poin!</p>
+                    <!-- Input klaim kode referral orang lain -->
+                    <div id="referral-claim-section" class="pt-1 space-y-1">
+                        <p class="text-[8px] font-black text-indigo-500 uppercase">Punya kode referral teman?</p>
+                        <div class="flex gap-2">
+                            <input id="referral-input" type="text" placeholder="Masukkan kode referral" class="flex-1 bg-white border border-indigo-100 px-3 py-2 rounded-xl text-[9px] font-bold outline-none uppercase">
+                            <button onclick="claimReferral()" class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Klaim</button>
+                        </div>
+                        <p id="referral-claim-msg" class="text-[8px] font-bold hidden"></p>
+                    </div>
+                </div>
+
                 <div>
                     <p class="text-[9px] font-black text-slate-500 uppercase mb-2">Riwayat Order</p>
                     <div id="buyer-order-history" class="space-y-2 max-h-52 overflow-y-auto pr-1">
