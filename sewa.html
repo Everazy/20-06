@@ -521,7 +521,7 @@
 
     // ─── Load listing user sendiri ────────────────────────────────────────────
     async function loadMyListings() {
-        const token = await getBuyerToken();
+        const token = await window.getBuyerToken?.();
         const loginPrompt = document.getElementById('my-listings-login-prompt');
         const emptyEl     = document.getElementById('my-listings-empty');
         const listEl      = document.getElementById('my-listings-list');
@@ -537,7 +537,7 @@
         try {
             const res  = await fetch('/api/rental-listing');
             const data = await res.json();
-            const uid  = getBuyerUid();
+            const uid  = window.getBuyerUid?.();
             const mine = (data.listings || []).filter(l => l.sellerUid === uid || l.status === 'pending' && l.sellerUid === uid);
 
             // Juga ambil semua (termasuk pending) dari Firestore — filter by uid dari listing_all
@@ -587,7 +587,7 @@
 
     // ─── Create / Edit Modal ──────────────────────────────────────────────────
     async function openCreateModal() {
-        const token = await getBuyerToken();
+        const token = await window.getBuyerToken?.();
         if (!token) { openBuyerModal(); return; }
         document.getElementById('edit-listing-id').value = '';
         document.getElementById('listing-name').value    = '';
@@ -620,7 +620,7 @@
     }
 
     async function saveListing() {
-        const token = await getBuyerToken();
+        const token = await window.getBuyerToken?.();
         if (!token) { openBuyerModal(); return; }
 
         const listingId   = document.getElementById('edit-listing-id').value.trim();
@@ -667,7 +667,7 @@
     }
 
     async function deleteListing(listingId) {
-        const token = await getBuyerToken();
+        const token = await window.getBuyerToken?.();
         if (!token) { openBuyerModal(); return; }
         if (!confirm('Hapus listing ini?')) return;
         try {
@@ -708,7 +708,7 @@
     }
 
     async function bayarSewa() {
-        const token = await getBuyerToken();
+        const token = await window.getBuyerToken?.();
         if (!token) { openBuyerModal(); return; }
         const phone = document.getElementById('sewa-phone').value.trim();
         if (!phone) { showToastLocal('Nomor HP wajib diisi!'); return; }
@@ -778,19 +778,10 @@
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
-    function getBuyerSession() {
-        try {
-            return JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
-        } catch { return {}; }
-    }
-    // Gunakan window.getBuyerValidToken() dari store.js yang otomatis refresh token expired
-    async function getBuyerToken() {
-        if (window.getBuyerValidToken) return await window.getBuyerValidToken();
-        return getBuyerSession().idToken || null;
-    }
-    function getBuyerUid() {
-        return getBuyerSession().uid || null;
-    }
+    // getBuyerToken() & getBuyerUid() kini disediakan oleh assets/store.js (window.getBuyerToken /
+    // window.getBuyerUid), yang membaca sesi asli (localStorage 'evr_buyer_session') dan auto-refresh
+    // token Firebase saat sudah/akan kedaluwarsa. Wrapper di bawah cuma jaga-jaga kalau store.js
+    // belum sempat load.
     function formatRp(n) {
         if (!n && n !== 0) return 'Rp -';
         return 'Rp ' + Number(n).toLocaleString('id-ID');
