@@ -96,7 +96,7 @@
         }
 
         .modal-body {
-            max-height: calc(90vh - 180px);
+            max-height: calc(90vh - 80px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -287,7 +287,8 @@ body.dark #bottom-bar,
 body.dark #modal-login > div,
 body.dark #modal-checkout > div,
 body.dark #modal-product > div,
-body.dark #modal-confirm-delete > div {
+body.dark #modal-confirm-delete > div,
+body.dark #modal-buyer > div {
     background-color: #1e293b !important;
     color: #f8fafc !important;
     border-color: #334155 !important;
