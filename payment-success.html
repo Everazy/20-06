@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembayaran Berhasil - Everastore</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { background: #0f172a; font-family: 'Inter', sans-serif; }
+  .animate-bounce-slow { animation: bounce 2s infinite; }
+  @keyframes pulse-ring { 0%{transform:scale(0.8);opacity:1} 100%{transform:scale(2);opacity:0} }
+  .pulse-ring { animation: pulse-ring 1.5s infinite; }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+
+    <!-- Loading state -->
+    <div id="state-loading" class="text-center space-y-6">
+      <div class="w-20 h-20 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-white font-bold text-sm uppercase tracking-widest">Mengecek pembayaran...</p>
+    </div>
+
+    <!-- Success state -->
+    <div id="state-success" class="hidden space-y-4">
+      <div class="bg-white/5 border border-white/10 rounded-3xl p-8 text-center space-y-4">
+        <div class="relative w-20 h-20 mx-auto">
+          <div class="absolute inset-0 bg-green-500/30 rounded-full pulse-ring"></div>
+          <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-check text-white text-3xl"></i>
+          </div>
+        </div>
+        <h1 class="text-white font-black text-xl uppercase tracking-wide">Pembayaran Berhasil!</h1>
+        <p id="success-message" class="text-green-400 font-bold text-sm">Berikut akun yang kamu dapat:</p>
+      </div>
+
+      <div id="accounts-container" class="space-y-3"></div>
+
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+        <p class="text-amber-400 font-black text-xs uppercase mb-1">⚠️ Penting!</p>
+        <p class="text-amber-300 text-xs font-bold">Screenshot halaman ini sekarang! Data akun tidak akan muncul lagi setelah halaman ditutup.</p>
+      </div>
+
+      <button onclick="window.close()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-sm uppercase">
+        Tutup Halaman
+      </button>
+    </div>
+
+    <!-- Success state for Insider topup -->
+    <div id="state-insider-success" class="hidden space-y-4">
+      <div class="bg-white/5 border border-white/10 rounded-3xl p-8 text-center space-y-4">
+        <div class="relative w-20 h-20 mx-auto">
+          <div class="absolute inset-0 bg-violet-500/30 rounded-full pulse-ring"></div>
+          <div class="w-20 h-20 bg-violet-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-bolt text-white text-3xl"></i>
+          </div>
+        </div>
+        <h1 class="text-white font-black text-xl uppercase tracking-wide">Top-up Berhasil!</h1>
+        <p id="insider-success-msg" class="text-violet-400 font-bold text-sm">Top-up telah dikirim ke akun tujuan kamu.</p>
+      </div>
+
+      <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+        <p class="text-amber-400 font-black text-xs uppercase mb-1">⚠️ Cek akun kamu!</p>
+        <p class="text-amber-300 text-xs font-bold">Top-up mungkin butuh beberapa menit untuk masuk. Jika dalam 15 menit belum masuk, hubungi admin.</p>
+      </div>
+
+      <a href="https://wa.me/6285750173207" target="_blank"
+         class="flex w-full bg-green-500 text-white py-4 rounded-2xl font-black text-sm uppercase items-center justify-center gap-2">
+        <i class="fab fa-whatsapp"></i> Hubungi Admin WhatsApp
+      </a>
+      <button onclick="window.close()" class="w-full bg-slate-700 text-slate-300 py-3 rounded-2xl font-black text-xs uppercase">
+        Tutup Halaman
+      </button>
+    </div>
+
+    <!-- Processing state for Insider -->
+    <div id="state-insider-processing" class="hidden text-center space-y-6">
+      <div class="bg-white/5 border border-white/10 rounded-3xl p-8 space-y-4">
+        <div class="w-20 h-20 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-white font-bold text-sm uppercase">Top-up Sedang Diproses</p>
+        <p class="text-violet-400 text-xs font-bold">Top-up sedang dikirim ke akun tujuan kamu. Halaman ini akan update otomatis setiap 5 detik.</p>
+      </div>
+    </div>
+
+    <!-- Pending state -->
+    <div id="state-pending" class="hidden text-center space-y-6">
+      <div class="bg-white/5 border border-white/10 rounded-3xl p-8 space-y-4">
+        <div class="flex justify-center gap-2">
+          <div class="w-3 h-3 bg-indigo-500 rounded-full animate-bounce"></div>
+          <div class="w-3 h-3 bg-indigo-400 rounded-full animate-bounce" style="animation-delay:0.15s"></div>
+          <div class="w-3 h-3 bg-indigo-300 rounded-full animate-bounce" style="animation-delay:0.3s"></div>
+        </div>
+        <p class="text-white font-bold text-sm uppercase">Menunggu konfirmasi pembayaran...</p>
+        <p class="text-slate-400 text-xs font-bold">Halaman ini akan otomatis update setiap 5 detik</p>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="state-error" class="hidden space-y-4">
+      <div class="bg-white/5 border border-white/10 rounded-3xl p-8 text-center space-y-4">
+        <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+          <i class="fas fa-exclamation-triangle text-red-400 text-3xl"></i>
+        </div>
+        <h2 class="text-white font-black text-lg uppercase">Terjadi Masalah</h2>
+        <p id="error-msg" class="text-red-400 text-sm font-bold"></p>
+      </div>
+      <a href="https://wa.me/6285750173207" target="_blank"
+         class="flex w-full bg-green-500 text-white py-4 rounded-2xl font-black text-sm uppercase items-center justify-center gap-2">
+        <i class="fab fa-whatsapp"></i> Hubungi Admin WhatsApp
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    // Ambil parameter dari URL atau localStorage
+    const params = new URLSearchParams(window.location.search);
+    const trxId   = params.get('trx_id') || params.get('reference_id') || params.get('trxId')
+                 || localStorage.getItem('evr_current_trx_id');
+    const orderId = params.get('order_id') || params.get('merchant_ref') || params.get('orderId')
+                 || localStorage.getItem('evr_current_order_id');
+
+    console.log('trxId:', trxId, 'orderId:', orderId);
+
+    function showState(name) {
+      ['loading','success','pending','error','insider-success','insider-processing'].forEach(s =>
+        document.getElementById(`state-${s}`).classList.add('hidden')
+      );
+      document.getElementById(`state-${name}`).classList.remove('hidden');
+    }
+
+    function showAccounts(accounts) {
+      const container = document.getElementById('accounts-container');
+      container.innerHTML = '';
+      accounts.forEach((acc, i) => {
+        const div = document.createElement('div');
+        div.className = 'bg-indigo-950 border border-indigo-800 rounded-2xl p-4';
+        div.innerHTML = `
+          <p class="text-indigo-400 font-black text-xs uppercase mb-2">Akun ${i + 1}</p>
+          <p class="text-white font-mono text-sm font-bold break-all">${escapeHtml(acc)}</p>
+          <button onclick="copyText('${escapeHtml(acc)}')"
+            class="mt-3 w-full bg-indigo-800 text-indigo-200 py-2 rounded-xl font-black text-xs uppercase">
+            <i class="fas fa-copy mr-1"></i> Salin Akun
+          </button>
+        `;
+        container.appendChild(div);
+      });
+      showState('success');
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => alert('✅ Akun berhasil disalin!'))
+          .catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+    function fallbackCopy(text) {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      try {
+        document.execCommand('copy');
+        alert('✅ Akun berhasil disalin!');
+      } catch (e) {
+        alert('Gagal salin otomatis. Silakan salin manual:\n\n' + text);
+      }
+      document.body.removeChild(el);
+    }
+    let pollCount = 0;
+    const maxPoll = 48; // 4 menit (5-detikan)
+
+    async function checkPayment() {
+      if (!trxId && !orderId) {
+        document.getElementById('error-msg').innerText = 'Parameter pembayaran tidak ditemukan. Hubungi admin.';
+        showState('error');
+        return;
+      }
+
+      try {
+        const query = new URLSearchParams();
+        if (trxId)   query.set('trxId', trxId);
+        if (orderId) query.set('orderId', orderId);
+
+        const res  = await fetch(`/api/check-payment?${query}`);
+        const data = await res.json();
+
+        console.log('Check result:', data);
+
+        // === Insider fulfillment ===
+        if (data.isPaid && data.fulfillment === 'insider') {
+          if (data.insiderStatus === 'done') {
+            document.getElementById('insider-success-msg').textContent = data.insiderNote || 'Top-up telah dikirim ke akun tujuan kamu.';
+            showState('insider-success');
+            return;
+          }
+          if (data.insiderStatus === 'failed') {
+            document.getElementById('error-msg').innerText = data.reason || data.insiderNote || 'Top-up gagal diproses. Hubungi admin.';
+            showState('error');
+            return;
+          }
+          // Masih processing — polling terus
+          showState('insider-processing');
+        }
+
+        // === Stock fulfillment ===
+        if (data.isPaid && data.deliveredAccounts && data.deliveredAccounts.length > 0) {
+          showAccounts(data.deliveredAccounts);
+          return;
+        }
+
+        if (data.isPaid && (!data.deliveredAccounts || data.deliveredAccounts.length === 0)) {
+          // Bayar tapi akun belum siap, polling terus
+          showState('pending');
+        } else {
+          showState('pending');
+        }
+
+        pollCount++;
+        if (pollCount < maxPoll) {
+          setTimeout(checkPayment, 5000);
+        } else {
+          document.getElementById('error-msg').innerText = 'Waktu cek habis. Jika sudah bayar, hubungi admin dengan screenshot bukti bayar.';
+          showState('error');
+        }
+
+      } catch (err) {
+        console.error(err);
+        pollCount++;
+        if (pollCount < maxPoll) setTimeout(checkPayment, 5000);
+        else {
+          document.getElementById('error-msg').innerText = 'Gagal cek status. Hubungi admin.';
+          showState('error');
+        }
+      }
+    }
+
+    // Mulai cek
+    checkPayment();
+  </script>
+</body>
+</html>

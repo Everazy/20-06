@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cek Region & Nickname — Everastore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --input-bg: #f1f5f9;
+    --indigo: #4f46e5;
+    --indigo-light: #eef2ff;
+    --indigo-mid: #818cf8;
+    --text-main: #0f172a;
+    --text-sub: #64748b;
+    --text-muted: #94a3b8;
+    --green: #10b981;
+    --green-light: #ecfdf5;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --amber: #f59e0b;
+    --amber-light: #fffbeb;
+    --radius: 2rem;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+  .topbar-logo {
+    width: 34px; height: 34px;
+    background: var(--indigo); border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 0.75rem;
+  }
+  .topbar-name { font-weight: 900; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--indigo); }
+  .topbar-badge {
+    font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--text-muted);
+    background: var(--input-bg); padding: 0.3rem 0.75rem; border-radius: 9999px;
+  }
+
+  /* ── Page wrapper ── */
+  .page { max-width: 480px; margin: 0 auto; padding: 1.5rem 1.25rem 5rem; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center; margin-bottom: 2rem;
+    padding: 2rem 1.5rem 1.5rem;
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px -8px rgba(79,70,229,0.08);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-icon {
+    width: 56px; height: 56px;
+    background: var(--indigo-light); border-radius: 1.25rem;
+    margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--indigo); font-size: 1.4rem;
+  }
+  .hero h1 {
+    font-size: 0.75rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.18em; color: var(--indigo); margin-bottom: 0.4rem;
+  }
+  .hero p { font-size: 0.7rem; color: var(--text-sub); font-weight: 600; line-height: 1.6; }
+
+  /* ── Game picker ── */
+  .section-label {
+    font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 0.75rem;
+  }
+  .game-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .game-btn {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 1.5rem; padding: 0.85rem 0.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+    cursor: pointer; transition: all 0.18s ease;
+    font-family: inherit;
+  }
+  .game-btn:active { transform: scale(0.95); }
+  .game-btn.active {
+    border-color: var(--indigo);
+    background: var(--indigo-light);
+    box-shadow: 0 8px 24px -8px rgba(79,70,229,0.2);
+  }
+  .game-btn .game-ico {
+    width: 36px; height: 36px; border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; transition: background 0.18s;
+  }
+  .game-btn span {
+    font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-sub); line-height: 1.2; text-align: center;
+  }
+  .game-btn.active span { color: var(--indigo); }
+
+  /* game icon colors */
+  .ico-ml  { background: #fef3c7; color: #d97706; }
+  .ico-ff  { background: #fce7f3; color: #db2777; }
+  .ico-pubg{ background: #ecfdf5; color: #059669; }
+  .ico-cod { background: #fff7ed; color: #ea580c; }
+  .ico-genshin { background: #eef2ff; color: #6366f1; }
+  .ico-hsr { background: #f0fdf4; color: #16a34a; }
+
+  .game-btn.active .ico-ml,
+  .game-btn.active .ico-ff,
+  .game-btn.active .ico-pubg,
+  .game-btn.active .ico-cod,
+  .game-btn.active .ico-genshin,
+  .game-btn.active .ico-hsr { opacity: 1; }
+
+  /* ── Form card ── */
+  .form-card {
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border); padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 12px -4px rgba(0,0,0,0.04);
+  }
+  .input-group { margin-bottom: 1rem; }
+  .input-group:last-of-type { margin-bottom: 0; }
+  .input-label {
+    font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.18em; color: var(--text-muted);
+    margin-bottom: 0.45rem; display: block;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap i {
+    position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+    color: var(--indigo-mid); font-size: 0.75rem; pointer-events: none;
+  }
+  .input-wrap input {
+    width: 100%; background: var(--input-bg);
+    border: 1.5px solid transparent; border-radius: 0.9rem;
+    padding: 0.75rem 0.9rem 0.75rem 2.2rem;
+    font-family: inherit; font-size: 0.8rem; font-weight: 700;
+    color: var(--text-main); outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input-wrap input::placeholder { color: var(--text-muted); font-weight: 600; }
+  .input-wrap input:focus {
+    border-color: var(--indigo);
+    background: var(--card);
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+  }
+
+  /* ── Server note hint ── */
+  .server-hint {
+    display: none; margin-top: 0.5rem;
+    background: var(--amber-light); border: 1px solid #fde68a;
+    border-radius: 0.75rem; padding: 0.6rem 0.8rem;
+    font-size: 0.6rem; font-weight: 700; color: #92400e;
+    line-height: 1.5;
+  }
+  .server-hint.visible { display: block; }
+  .server-hint strong { color: var(--amber); }
+
+  /* ── CTA button ── */
+  .btn-cek {
+    width: 100%; background: var(--indigo); color: white;
+    border: none; border-radius: 0.9rem; padding: 1rem;
+    font-family: inherit; font-size: 0.7rem; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    cursor: pointer; transition: all 0.18s ease;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    box-shadow: 0 8px 24px -8px rgba(79,70,229,0.4);
+  }
+  .btn-cek:active { transform: scale(0.98); box-shadow: none; }
+  .btn-cek:disabled { background: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+  .btn-cek .spinner {
+    width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-cek.loading .spinner { display: block; }
+  .btn-cek.loading .btn-text { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Result card ── */
+  .result-card {
+    display: none;
+    background: var(--card); border-radius: var(--radius);
+    border: 1.5px solid var(--border); overflow: hidden;
+    box-shadow: 0 4px 24px -8px rgba(0,0,0,0.08);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { opacity:0; transform: translateY(16px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .result-card.visible { display: block; }
+  .result-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .result-header .status-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .status-dot.ok  { background: var(--green); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+  .status-dot.err { background: var(--red);   box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
+  .result-header .rh-title {
+    font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.15em; flex: 1;
+  }
+  .result-header .rh-title.ok  { color: var(--green); }
+  .result-header .rh-title.err { color: var(--red); }
+
+  .result-body { padding: 1.5rem; }
+
+  .result-field { margin-bottom: 1rem; }
+  .result-field:last-child { margin-bottom: 0; }
+  .rf-label {
+    font-size: 0.58rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.18em; color: var(--text-muted); margin-bottom: 0.3rem;
+  }
+  .rf-value {
+    font-size: 0.9rem; font-weight: 800; color: var(--text-main); line-height: 1.3;
+  }
+  .rf-value.nickname { font-size: 1.05rem; color: var(--indigo); }
+  .rf-value.region   { display: flex; align-items: center; gap: 0.4rem; }
+  .region-badge {
+    font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.1em; padding: 0.25rem 0.7rem; border-radius: 9999px;
+    background: var(--indigo-light); color: var(--indigo);
+  }
+
+  .result-error-msg {
+    font-size: 0.72rem; font-weight: 700; color: var(--red);
+    line-height: 1.6;
+  }
+  .result-tip {
+    margin-top: 0.75rem;
+    font-size: 0.63rem; font-weight: 700; color: var(--text-sub);
+    background: var(--input-bg); border-radius: 0.75rem;
+    padding: 0.6rem 0.8rem; line-height: 1.6;
+  }
+
+  /* ── Info accordion ── */
+  .info-section { margin-top: 1.5rem; }
+  .info-toggle {
+    width: 100%; background: none; border: none; font-family: inherit;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 0; cursor: pointer; border-top: 1px solid var(--border);
+  }
+  .info-toggle span {
+    font-size: 0.6rem; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.15em; color: var(--text-sub);
+  }
+  .info-toggle i { color: var(--text-muted); font-size: 0.65rem; transition: transform 0.2s; }
+  .info-toggle.open i { transform: rotate(180deg); }
+  .info-content { display: none; padding-bottom: 1rem; }
+  .info-content.open { display: block; }
+  .info-item {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+  .info-item:last-child { margin-bottom: 0; }
+  .info-num {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: var(--indigo-light); color: var(--indigo);
+    font-size: 0.6rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .info-text { font-size: 0.68rem; font-weight: 600; color: var(--text-sub); line-height: 1.6; }
+  .info-text strong { color: var(--text-main); font-weight: 800; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; margin-top: 2rem;
+    font-size: 0.58rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--text-muted);
+  }
+  .footer a { color: var(--indigo); text-decoration: none; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text-main); color: white;
+    font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 0.6rem 1.2rem; border-radius: 9999px;
+    opacity: 0; transition: all 0.25s; z-index: 999; pointer-events: none;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar">
+  <a href="#" class="topbar-brand">
+    <div class="topbar-logo"><i class="fas fa-bolt"></i></div>
+    <span class="topbar-name">Everastore</span>
+  </a>
+  <span class="topbar-badge"><i class="fas fa-map-marker-alt" style="margin-right:4px;color:var(--indigo)"></i>Cek Region</span>
+</header>
+
+<!-- Main page -->
+<main class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-icon"><i class="fas fa-user-check"></i></div>
+    <h1>Cek Region & Nickname</h1>
+    <p>Verifikasi akun game kamu sebelum topup.<br>Masukkan ID + Server untuk cek nama & region.</p>
+  </div>
+
+  <!-- Game selector -->
+  <div class="section-label">Pilih Game</div>
+  <div class="game-grid" id="game-grid">
+    <button class="game-btn active" data-game="ml" onclick="selectGame(this)">
+      <div class="game-ico ico-ml"><i class="fas fa-sword" style="font-size:0.85rem"></i>⚔️</div>
+      <span>Mobile Legends</span>
+    </button>
+    <button class="game-btn" data-game="ff" onclick="selectGame(this)">
+      <div class="game-ico ico-ff">🔥</div>
+      <span>Free Fire</span>
+    </button>
+    <button class="game-btn" data-game="pubg" onclick="selectGame(this)">
+      <div class="game-ico ico-pubg">🪖</div>
+      <span>PUBG Mobile</span>
+    </button>
+    <button class="game-btn" data-game="cod" onclick="selectGame(this)">
+      <div class="game-ico ico-cod">🎯</div>
+      <span>Call of Duty</span>
+    </button>
+    <button class="game-btn" data-game="genshin" onclick="selectGame(this)">
+      <div class="game-ico ico-genshin">🌟</div>
+      <span>Genshin Impact</span>
+    </button>
+    <button class="game-btn" data-game="hsr" onclick="selectGame(this)">
+      <div class="game-ico ico-hsr">🚂</div>
+      <span>Honkai: Star Rail</span>
+    </button>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <div class="input-group" id="id-group">
+      <label class="input-label" id="id-label">ID</label>
+      <div class="input-wrap">
+        <i class="fas fa-fingerprint"></i>
+        <input type="number" id="input-id" placeholder="Contoh: 123456789" inputmode="numeric">
+      </div>
+    </div>
+    <div class="input-group" id="server-group">
+      <label class="input-label" id="server-label">Server</label>
+      <div class="input-wrap">
+        <i class="fas fa-server"></i>
+        <input type="number" id="input-server" placeholder="Contoh: 1234" inputmode="numeric">
+      </div>
+      <div class="server-hint" id="server-hint"></div>
+    </div>
+  </div>
+
+  <!-- Button -->
+  <button class="btn-cek" id="btn-cek" onclick="doCheck()">
+    <div class="spinner"></div>
+    <span class="btn-text"><i class="fas fa-search" style="margin-right:4px"></i>Cek Sekarang</span>
+  </button>
+
+  <!-- Result -->
+  <div style="margin-top:1.25rem">
+    <div class="result-card" id="result-card"></div>
+  </div>
+
+  <!-- Info accordion -->
+  <div class="info-section">
+    <button class="info-toggle" id="info-toggle" onclick="toggleInfo()">
+      <span><i class="fas fa-circle-info" style="margin-right:6px;color:var(--indigo)"></i>Cara menemukan ID & Server</span>
+      <i class="fas fa-chevron-down"></i>
+    </button>
+    <div class="info-content" id="info-content">
+      <div id="info-body"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Tool gratis dari <a href="#">Everastore</a> · Tidak menyimpan data apapun
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ────────────────────────────────────────────
+// Game config
+// ────────────────────────────────────────────
+const GAMES = {
+  ml: {
+    name: 'Mobile Legends',
+    idLabel: 'ID',
+    serverLabel: 'Server',
+    idPlaceholder: 'Angka panjang, contoh: 123456789',
+    serverPlaceholder: 'Angka pendek, contoh: 3003',
+    serverHint: '<strong>Server</strong> = angka kecil (Zone ID) di samping/bawah ID panjangmu di profil MLBB. Contoh: jika profilmu tampil <strong>123456789 (3003)</strong>, maka ID = 123456789 dan Server = 3003.',
+    infoSteps: [
+      { title: 'Buka Mobile Legends', desc: 'Masuk ke game dan tap ikon profil di sudut kiri atas.' },
+      { title: 'Salin ID', desc: 'ID besar di bawah nama akunmu — itulah <strong>ID</strong> kamu.' },
+      { title: 'Salin Server', desc: 'Angka dalam tanda kurung di samping ID adalah <strong>Server</strong> kamu.' },
+      { title: 'Masukkan di sini', desc: 'Tempel keduanya lalu tekan Cek Sekarang.' }
+    ],
+    checkUrl: (id, server) => `/api/cek-nickname?game=ml&id=${id}&server=${server}`,
+    parseResult: (data) => {
+      const nick = data.name || data.username || data.nickname;
+      const ok   = data.success === true || data.status === true || data.status == 1;
+      if (ok && nick) {
+        return { ok: true, nickname: nick, region: data.country || null };
+      }
+      return { ok: false };
+    }
+  },
+  ff: {
+    name: 'Free Fire',
+    idLabel: 'Player ID',
+    serverLabel: 'Region',
+    idPlaceholder: 'Contoh: 12345678',
+    serverPlaceholder: 'ID / SG / VN / TH / MY / PH / BD',
+    serverHint: 'Masukkan kode region: <strong>ID</strong> (Indonesia), <strong>SG</strong> (Singapura), <strong>VN</strong> (Vietnam), dll.',
+    infoSteps: [
+      { title: 'Buka Free Fire', desc: 'Tap ikon profil di pojok kiri atas layar utama.' },
+      { title: 'Salin Player ID', desc: 'Angka di bawah nama akun adalah <strong>Player ID</strong> kamu.' },
+      { title: 'Pilih region', desc: 'Gunakan kode region sesuai negaramu: ID, SG, VN, TH, MY, PH, BD.' },
+      { title: 'Masukkan di sini', desc: 'Tempel ID dan masukkan kode region lalu tekan Cek.' }
+    ],
+    checkUrl: (id, server) => {
+      const s = server.toUpperCase().trim();
+      return `/api/cek-nickname?game=ff&id=${id}&server=${s}`;
+    },
+    parseResult: (data) => {
+      if (data.status && data.nickname) {
+        return { ok: true, nickname: data.nickname, region: data.region };
+      }
+      return { ok: false };
+    },
+    serverIsText: true
+  },
+  pubg: {
+    name: 'PUBG Mobile',
+    idLabel: 'Player ID',
+    serverLabel: 'Region',
+    idPlaceholder: 'Contoh: 5285937214',
+    serverPlaceholder: 'ID / VN / TH / MY / PH / SG / KR',
+    serverHint: 'Masukkan kode region: <strong>ID</strong> (Indonesia), <strong>VN</strong>, <strong>TH</strong>, <strong>MY</strong>, <strong>PH</strong>, <strong>SG</strong>.',
+    infoSteps: [
+      { title: 'Buka PUBG Mobile', desc: 'Tap menu profil di halaman utama.' },
+      { title: 'Salin Player ID', desc: 'Angka unik di bawah nama karaktermu.' },
+      { title: 'Tentukan region', desc: 'Gunakan kode region sesuai server akunmu.' },
+      { title: 'Cek nickname', desc: 'Masukkan data dan tekan Cek Sekarang.' }
+    ],
+    checkUrl: (id, server) => {
+      const s = server.toUpperCase().trim();
+      return `/api/cek-nickname?game=pubgm&id=${id}&server=${s}`;
+    },
+    parseResult: (data) => {
+      if (data.status && data.nickname) {
+        return { ok: true, nickname: data.nickname };
+      }
+      return { ok: false };
+    },
+    serverIsText: true
+  },
+  cod: {
+    name: 'Call of Duty Mobile',
+    idLabel: 'ID',
+    serverLabel: 'Region',
+    idPlaceholder: 'Masukkan User ID',
+    serverPlaceholder: 'garena / codm',
+    serverHint: 'Masukkan <strong>garena</strong> untuk Garena atau <strong>codm</strong> untuk versi global.',
+    infoSteps: [
+      { title: 'Buka COD Mobile', desc: 'Masuk dan tap foto profilmu.' },
+      { title: 'Salin User ID', desc: 'ID akun ada di halaman profil.' },
+      { title: 'Pilih versi', desc: 'Garena (Asia) atau global (codm).' },
+      { title: 'Masukkan di sini', desc: 'Masukkan data lalu tekan Cek.' }
+    ],
+    checkUrl: (id, server) =>
+      `/api/cek-nickname?game=codm&id=${id}&server=${server.toLowerCase().trim()}`,
+    parseResult: (data) => {
+      if (data.status && data.nickname) {
+        return { ok: true, nickname: data.nickname };
+      }
+      return { ok: false };
+    },
+    serverIsText: true
+  },
+  genshin: {
+    name: 'Genshin Impact',
+    idLabel: 'UID',
+    serverLabel: 'Server',
+    idPlaceholder: 'Contoh: 800000001',
+    serverPlaceholder: 'os_asia / os_euro / os_usa / cn_gf01',
+    serverHint: 'Server: <strong>os_asia</strong> (Asia), <strong>os_euro</strong> (Eropa), <strong>os_usa</strong> (Amerika), <strong>cn_gf01</strong> (China).',
+    infoSteps: [
+      { title: 'Buka Genshin Impact', desc: 'Tap menu Paimon → Akun.' },
+      { title: 'Salin UID', desc: 'UID ada di sudut kanan bawah layar dalam game.' },
+      { title: 'Cek server', desc: 'Digit pertama UID menunjukkan server: 8=Asia, 9=TW/HK, 6=USA, 7=Euro, 1-5=China.' },
+      { title: 'Masukkan di sini', desc: 'Masukkan UID dan server lalu tekan Cek.' }
+    ],
+    checkUrl: (id, server) =>
+      `/api/cek-nickname?game=genshin&id=${id}&server=${server.toLowerCase().trim()}`,
+    parseResult: (data) => {
+      if (data.status && data.nickname) {
+        return { ok: true, nickname: data.nickname, region: server };
+      }
+      return { ok: false };
+    },
+    serverIsText: true
+  },
+  hsr: {
+    name: 'Honkai: Star Rail',
+    idLabel: 'UID',
+    serverLabel: 'Server',
+    idPlaceholder: 'Contoh: 800000001',
+    serverPlaceholder: 'prod_official_asia / prod_official_euro',
+    serverHint: 'Server: <strong>prod_official_asia</strong> (Asia), <strong>prod_official_euro</strong> (Eropa), <strong>prod_official_usa</strong> (Amerika).',
+    infoSteps: [
+      { title: 'Buka Honkai: Star Rail', desc: 'Masuk ke game dan tap profil karakter.' },
+      { title: 'Salin UID', desc: 'UID ada di sudut kanan bawah layar.' },
+      { title: 'Cek server', desc: 'Digit pertama UID: 8=Asia, 9=TW/HK, 6=USA, 7=Euro.' },
+      { title: 'Masukkan di sini', desc: 'Masukkan UID dan server lalu tekan Cek.' }
+    ],
+    checkUrl: (id, server) =>
+      `/api/cek-nickname?game=hsr&id=${id}&server=${server.toLowerCase().trim()}`,
+    parseResult: (data) => {
+      if (data.status && data.nickname) {
+        return { ok: true, nickname: data.nickname, region: server };
+      }
+      return { ok: false };
+    },
+    serverIsText: true
+  }
+};
+
+let selectedGame = 'ml';
+
+// ────────────────────────────────────────────
+// Game select
+// ────────────────────────────────────────────
+function selectGame(btn) {
+  document.querySelectorAll('.game-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedGame = btn.dataset.game;
+  updateFormLabels();
+  clearResult();
+}
+
+function updateFormLabels() {
+  const g = GAMES[selectedGame];
+  document.getElementById('id-label').textContent = g.idLabel;
+  document.getElementById('server-label').textContent = g.serverLabel;
+  document.getElementById('input-id').placeholder = g.idPlaceholder;
+  document.getElementById('input-server').placeholder = g.serverPlaceholder;
+
+  // Switch server input type
+  const sInput = document.getElementById('input-server');
+  if (g.serverIsText) {
+    sInput.type = 'text';
+    sInput.inputMode = 'text';
+  } else {
+    sInput.type = 'number';
+    sInput.inputMode = 'numeric';
+  }
+
+  document.getElementById('server-hint').innerHTML = g.serverHint;
+  document.getElementById('server-hint').classList.add('visible');
+
+  // Info steps
+  const steps = g.infoSteps.map((s, i) => `
+    <div class="info-item">
+      <div class="info-num">${i+1}</div>
+      <div class="info-text"><strong>${s.title}</strong><br>${s.desc}</div>
+    </div>`).join('');
+  document.getElementById('info-body').innerHTML = steps;
+}
+
+// ────────────────────────────────────────────
+// Check
+// ────────────────────────────────────────────
+async function doCheck() {
+  const id     = document.getElementById('input-id').value.trim();
+  const server = document.getElementById('input-server').value.trim();
+
+  if (!id || !server) {
+    showToast('Isi ID dan Server terlebih dahulu');
+    return;
+  }
+
+  const btn = document.getElementById('btn-cek');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  clearResult();
+
+  const g = GAMES[selectedGame];
+  const url = g.checkUrl(id, server);
+
+  try {
+    const res  = await fetch(url);
+    const data = await res.json();
+    const parsed = g.parseResult(data);
+
+    if (parsed.ok) {
+      showSuccess(parsed, g);
+    } else {
+      showError(g);
+    }
+  } catch (e) {
+    showNetworkError();
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function showSuccess(parsed, g) {
+  // Jika region adalah nama negara (dari ML: "Philippines", "Indonesia", dll),
+  // tampilkan sebagai baris "Negara Akun" terpisah
+  const isCountryName = parsed.region && parsed.region.length > 3;
+  const regionHtml = parsed.region
+    ? `<div class="result-field">
+        <div class="rf-label">${isCountryName ? 'Negara Akun' : 'Region / Server'}</div>
+        <div class="rf-value region"><span class="region-badge">${parsed.region}</span></div>
+      </div>` : '';
+
+  const server = document.getElementById('input-server').value.trim();
+
+  document.getElementById('result-card').innerHTML = `
+    <div class="result-header">
+      <div class="status-dot ok"></div>
+      <div class="rh-title ok">Akun Ditemukan ✓</div>
+    </div>
+    <div class="result-body">
+      <div class="result-field">
+        <div class="rf-label">Nickname</div>
+        <div class="rf-value nickname">${escHtml(parsed.nickname)}</div>
+      </div>
+      <div class="result-field">
+        <div class="rf-label">Game</div>
+        <div class="rf-value">${g.name}</div>
+      </div>
+      <div class="result-field">
+        <div class="rf-label">ID Akun</div>
+        <div class="rf-value">${escHtml(document.getElementById('input-id').value.trim())}</div>
+      </div>
+      <div class="result-field">
+        <div class="rf-label">${g.serverLabel}</div>
+        <div class="rf-value">${escHtml(server)}</div>
+      </div>
+      ${regionHtml}
+    </div>`;
+
+  document.getElementById('result-card').classList.add('visible');
+  document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showError(g) {
+  document.getElementById('result-card').innerHTML = `
+    <div class="result-header">
+      <div class="status-dot err"></div>
+      <div class="rh-title err">Akun Tidak Ditemukan</div>
+    </div>
+    <div class="result-body">
+      <p class="result-error-msg">ID atau ${g.serverLabel} yang kamu masukkan tidak valid atau tidak ditemukan.</p>
+      <div class="result-tip">
+        💡 Pastikan ID dan ${g.serverLabel} sudah benar. Perhatikan penulisan — tidak ada spasi, huruf kapital sesuai (untuk kode region), atau angka yang tertinggal.
+      </div>
+    </div>`;
+  document.getElementById('result-card').classList.add('visible');
+}
+
+function showNetworkError() {
+  document.getElementById('result-card').innerHTML = `
+    <div class="result-header">
+      <div class="status-dot err"></div>
+      <div class="rh-title err">Koneksi Bermasalah</div>
+    </div>
+    <div class="result-body">
+      <p class="result-error-msg">Gagal terhubung ke server. Coba lagi dalam beberapa saat.</p>
+      <div class="result-tip">💡 Periksa koneksi internet kamu, lalu coba tekan Cek Sekarang lagi.</div>
+    </div>`;
+  document.getElementById('result-card').classList.add('visible');
+}
+
+function clearResult() {
+  const card = document.getElementById('result-card');
+  card.classList.remove('visible');
+  card.innerHTML = '';
+}
+
+// ────────────────────────────────────────────
+// Info accordion
+// ────────────────────────────────────────────
+function toggleInfo() {
+  const toggle  = document.getElementById('info-toggle');
+  const content = document.getElementById('info-content');
+  toggle.classList.toggle('open');
+  content.classList.toggle('open');
+}
+
+// ────────────────────────────────────────────
+// Toast
+// ────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ────────────────────────────────────────────
+// Enter key
+// ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doCheck();
+});
+
+// ────────────────────────────────────────────
+// Utils
+// ────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init
+updateFormLabels();
+</script>
+</body>
+</html>
