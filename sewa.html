@@ -357,6 +357,76 @@
         </div>
     </div>
 
+    <!-- Modal Akun Saya (login / profil pembeli) — dibutuhkan oleh assets/store.js -->
+    <div id="modal-buyer" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white w-full max-w-sm rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-black text-indigo-600 uppercase tracking-[0.15em] text-[11px]">Akun Saya</h3>
+                <button onclick="closeBuyerModal()" class="text-slate-300 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-50 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- State: belum login -->
+            <div id="buyer-modal-guest" class="modal-body p-8 space-y-5 text-center">
+                <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto">
+                    <i class="fas fa-user text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-black text-slate-700 uppercase">Login dulu, yuk!</p>
+                    <p class="text-[9px] text-slate-400 font-bold mt-1">Order otomatis (Bayar Otomatis) wajib pakai akun.</p>
+                </div>
+                <div id="google-signin-btn-container" class="flex justify-center"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-slate-100"></div>
+                    <span class="text-[8px] font-black text-slate-300 uppercase">atau</span>
+                    <div class="flex-1 h-px bg-slate-100"></div>
+                </div>
+
+                <!-- Form Email & Password (daftar / masuk manual, tanpa OTP) -->
+                <div class="space-y-3 text-left">
+                    <input type="text" id="buyer-email-name" placeholder="Nama Lengkap" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 outline-none font-bold text-xs hidden" data-register-only>
+                    <input type="email" id="buyer-email-input" placeholder="Email" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 outline-none font-bold text-xs">
+                    <input type="password" id="buyer-email-password" placeholder="Password (min. 6 karakter)" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 outline-none font-bold text-xs">
+                    <p id="buyer-email-error" class="text-[8px] font-bold text-red-400 hidden"></p>
+                    <button id="buyer-email-submit-btn" onclick="buyerEmailLogin()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Masuk</button>
+                    <button onclick="toggleBuyerEmailMode()" class="w-full text-[8px] font-bold text-indigo-500 uppercase py-1">
+                        <span id="buyer-email-toggle-text">Belum punya akun? Daftar di sini</span>
+                    </button>
+                </div>
+
+                <p class="text-[8px] text-slate-300 font-bold">Produk lain (pesan via WhatsApp) tetap bisa tanpa akun.</p>
+            </div>
+
+            <!-- State: sudah login -->
+            <div id="buyer-modal-profile" class="modal-body p-6 space-y-5 hidden">
+                <div class="flex items-center gap-4">
+                    <img id="buyer-profile-avatar" src="" alt="" class="w-14 h-14 rounded-full object-cover border-2 border-indigo-100">
+                    <div class="overflow-hidden">
+                        <p id="buyer-profile-name" class="font-black text-slate-800 text-sm truncate"></p>
+                        <p id="buyer-profile-email" class="text-[9px] text-slate-400 font-bold truncate"></p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-indigo-50 rounded-2xl p-4 text-center">
+                        <p id="buyer-profile-points" class="text-xl font-black text-indigo-700">0</p>
+                        <p class="text-[8px] font-black text-indigo-400 uppercase mt-1">Poin</p>
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4 text-center">
+                        <p id="buyer-profile-orders" class="text-xl font-black text-slate-700">0</p>
+                        <p class="text-[8px] font-black text-slate-400 uppercase mt-1">Total Order</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-2">Riwayat Order</p>
+                    <div id="buyer-order-history" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                        <p class="text-[9px] text-slate-300 font-bold text-center py-4">Memuat...</p>
+                    </div>
+                </div>
+                <button onclick="buyerLogout()" class="w-full bg-red-50 text-red-500 py-3 rounded-2xl font-black text-[10px] uppercase">Logout</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Feedback Toast -->
     <div id="feedback-toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-[9px] font-black z-[999] transition-all transform scale-0 opacity-0 uppercase tracking-widest shadow-2xl"></div>
 

@@ -20,6 +20,9 @@ const { default: toggleAutopayment } = await import('./api/toggle-autopayment.js
 const { default: myIp }              = await import('./api/my-ip.js');
 const { default: cekNickname }       = await import('./api/cek-nickname.js');
 const { default: myOrders }          = await import('./api/my-orders.js');
+const { default: rentalListing }     = await import('./api/rental-listing.js');
+const { default: rentalPayment }     = await import('./api/rental-payment.js');
+const { default: rentalCallback }    = await import('./api/rental-callback.js');
 
 // ── MAINTENANCE MODE ──────────────────────────────────────────────────
 // Set MAINTENANCE_MODE=true di Railway Variables untuk aktifkan
@@ -47,6 +50,9 @@ app.all('/api/toggle-autopayment', toggleAutopayment);
 app.all('/api/my-ip',              myIp);
 app.all('/api/cek-nickname',        cekNickname);
 app.all('/api/my-orders',           myOrders);
+app.all('/api/rental-listing',      rentalListing);
+app.all('/api/rental-payment',      rentalPayment);
+app.all('/api/rental-callback',     rentalCallback);
 
 // Static files SETELAH API routes
 app.use('/assets', express.static(path.join(__dirname, 'assets')));

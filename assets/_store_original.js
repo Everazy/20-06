@@ -211,9 +211,12 @@
         function showBuyerProfileView() {
             document.getElementById('buyer-modal-guest')?.classList.add('hidden');
             document.getElementById('buyer-modal-profile')?.classList.remove('hidden');
-            document.getElementById('buyer-profile-avatar').src = buyerUser.photo || '';
-            document.getElementById('buyer-profile-name').innerText = buyerUser.name || 'Pembeli';
-            document.getElementById('buyer-profile-email').innerText = buyerUser.email || '';
+            const avatarEl = document.getElementById('buyer-profile-avatar');
+            if (avatarEl) avatarEl.src = buyerUser.photo || '';
+            const nameEl = document.getElementById('buyer-profile-name');
+            if (nameEl) nameEl.innerText = buyerUser.name || 'Pembeli';
+            const emailEl = document.getElementById('buyer-profile-email');
+            if (emailEl) emailEl.innerText = buyerUser.email || '';
             // Set kode referral langsung dari UID tanpa tunggu fetch
             const refEl = document.getElementById('buyer-referral-code');
             if (refEl && buyerUser.uid) refEl.innerText = buyerUser.uid.substring(0, 8).toUpperCase();
@@ -866,8 +869,8 @@ window.addEventListener('scroll', updateFloatingButtons, { passive: true });
         (async () => {
             try {
                 isAdmin = false;
-                document.getElementById('admin-indicator').classList.replace('flex', 'hidden');
-                document.getElementById('login-trigger').classList.remove('hidden');
+                document.getElementById('admin-indicator')?.classList.replace('flex', 'hidden');
+                document.getElementById('login-trigger')?.classList.remove('hidden');
                 safeStartListening();
             } catch (err) {
                 console.error("Init Error:", err);
