@@ -521,7 +521,7 @@
 
     // ─── Load listing user sendiri ────────────────────────────────────────────
     async function loadMyListings() {
-        const token = getBuyerToken();
+        const token = await getBuyerToken();
         const loginPrompt = document.getElementById('my-listings-login-prompt');
         const emptyEl     = document.getElementById('my-listings-empty');
         const listEl      = document.getElementById('my-listings-list');
@@ -586,8 +586,8 @@
     }
 
     // ─── Create / Edit Modal ──────────────────────────────────────────────────
-    function openCreateModal() {
-        const token = getBuyerToken();
+    async function openCreateModal() {
+        const token = await getBuyerToken();
         if (!token) { openBuyerModal(); return; }
         document.getElementById('edit-listing-id').value = '';
         document.getElementById('listing-name').value    = '';
@@ -620,7 +620,7 @@
     }
 
     async function saveListing() {
-        const token = getBuyerToken();
+        const token = await getBuyerToken();
         if (!token) { openBuyerModal(); return; }
 
         const listingId   = document.getElementById('edit-listing-id').value.trim();
@@ -667,7 +667,7 @@
     }
 
     async function deleteListing(listingId) {
-        const token = getBuyerToken();
+        const token = await getBuyerToken();
         if (!token) { openBuyerModal(); return; }
         if (!confirm('Hapus listing ini?')) return;
         try {
@@ -708,7 +708,7 @@
     }
 
     async function bayarSewa() {
-        const token = getBuyerToken();
+        const token = await getBuyerToken();
         if (!token) { openBuyerModal(); return; }
         const phone = document.getElementById('sewa-phone').value.trim();
         if (!phone) { showToastLocal('Nomor HP wajib diisi!'); return; }
@@ -783,7 +783,9 @@
             return JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
         } catch { return {}; }
     }
-    function getBuyerToken() {
+    // Gunakan window.getBuyerValidToken() dari store.js yang otomatis refresh token expired
+    async function getBuyerToken() {
+        if (window.getBuyerValidToken) return await window.getBuyerValidToken();
         return getBuyerSession().idToken || null;
     }
     function getBuyerUid() {

@@ -165,7 +165,13 @@
                     body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`
                 });
                 if (!res.ok) return null;
-                return await res.json();
+                const data = await res.json();
+                // securetoken API returns snake_case: id_token, refresh_token, expires_in
+                return {
+                    idToken: data.id_token || data.idToken,
+                    refreshToken: data.refresh_token || data.refreshToken,
+                    expiresIn: data.expires_in || data.expiresIn || '3600'
+                };
             } catch (e) { return null; }
         }
 
@@ -318,6 +324,18 @@
             saveBuyerSession(null);
             closeBuyerModal();
             showToast('BERHASIL LOGOUT');
+        };
+
+        // Expose fungsi untuk mendapatkan token valid (dengan auto-refresh jika expired)
+        window.getBuyerValidToken = async () => {
+            if (!buyerUser) return null;
+            if (buyerUser.expiresAt && Date.now() > buyerUser.expiresAt - 60000) {
+                const refreshed = await refreshBuyerToken(buyerUser.refreshToken);
+                if (!refreshed || !refreshed.idToken) { saveBuyerSession(null); return null; }
+                buyerUser = { ...buyerUser, idToken: refreshed.idToken, refreshToken: refreshed.refreshToken, expiresAt: Date.now() + (parseInt(refreshed.expiresIn || '3600') * 1000) };
+                localStorage.setItem(BUYER_STORAGE_KEY, JSON.stringify(buyerUser));
+            }
+            return buyerUser.idToken || null;
         };
 
         // === SISTEM POIN ===
