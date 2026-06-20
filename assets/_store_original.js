@@ -188,6 +188,7 @@
                 container.innerHTML = '';
                 google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with' });
             }
+            document.getElementById('buyer-email-error')?.classList.add('hidden');
         }
 
         function showBuyerProfileView() {
@@ -282,6 +283,129 @@
             saveBuyerSession(null);
             closeBuyerModal();
             showToast('BERHASIL LOGOUT');
+        };
+
+        // === LOGIN/DAFTAR EMAIL & PASSWORD (alternatif Google, tanpa OTP) ===
+        // Disengaja tanpa OTP: order ini cuma syarat punya akun untuk auto order,
+        // bukan transaksi finansial langsung (pembayaran tetap lewat SakuRupiah/QRIS),
+        // jadi email+password saja sudah cukup tanpa perlu infra OTP yang lebih ribet & berbayar.
+        let _buyerEmailMode = 'login'; // 'login' | 'register'
+
+        window.toggleBuyerEmailMode = () => {
+            _buyerEmailMode = _buyerEmailMode === 'login' ? 'register' : 'login';
+            const nameInput = document.querySelector('[data-register-only]');
+            const btn = document.getElementById('buyer-email-submit-btn');
+            const toggleText = document.getElementById('buyer-email-toggle-text');
+            document.getElementById('buyer-email-error')?.classList.add('hidden');
+            if (_buyerEmailMode === 'register') {
+                nameInput?.classList.remove('hidden');
+                btn.innerText = 'Daftar';
+                btn.onclick = window.buyerEmailRegister;
+                toggleText.innerText = 'Sudah punya akun? Masuk di sini';
+            } else {
+                nameInput?.classList.add('hidden');
+                btn.innerText = 'Masuk';
+                btn.onclick = window.buyerEmailLogin;
+                toggleText.innerText = 'Belum punya akun? Daftar di sini';
+            }
+        };
+
+        function showBuyerEmailError(msg) {
+            const el = document.getElementById('buyer-email-error');
+            if (!el) return;
+            el.innerText = msg;
+            el.classList.remove('hidden');
+        }
+
+        function buyerFriendlyAuthError(code) {
+            const map = {
+                EMAIL_EXISTS: 'Email sudah terdaftar, silakan masuk.',
+                EMAIL_NOT_FOUND: 'Email belum terdaftar, silakan daftar dulu.',
+                INVALID_PASSWORD: 'Password salah.',
+                INVALID_LOGIN_CREDENTIALS: 'Email atau password salah.',
+                WEAK_PASSWORD: 'Password minimal 6 karakter.',
+                INVALID_EMAIL: 'Format email tidak valid.',
+                MISSING_PASSWORD: 'Password wajib diisi.'
+            };
+            return map[code] || 'Gagal memproses akun. Coba lagi.';
+        }
+
+        async function finishBuyerEmailAuth(data, fallbackName) {
+            const session = {
+                uid: data.localId,
+                name: fallbackName || data.displayName || data.email,
+                email: data.email,
+                photo: '',
+                idToken: data.idToken,
+                refreshToken: data.refreshToken,
+                expiresAt: Date.now() + (parseInt(data.expiresIn || '3600') * 1000)
+            };
+
+            try {
+                await fsSet('users', session.uid, {
+                    displayName: session.name,
+                    email: session.email,
+                    updatedAt: new Date().toISOString()
+                }, session.idToken);
+            } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
+
+            saveBuyerSession(session);
+            showToast('LOGIN BERHASIL!');
+            showBuyerProfileView();
+
+            if (_pendingAutoOrderAfterLogin) {
+                _pendingAutoOrderAfterLogin = false;
+                closeBuyerModal();
+                window.startPaymentGateway();
+            }
+        }
+
+        window.buyerEmailRegister = async () => {
+            const name = document.getElementById('buyer-email-name')?.value?.trim();
+            const email = document.getElementById('buyer-email-input')?.value?.trim();
+            const password = document.getElementById('buyer-email-password')?.value || '';
+            document.getElementById('buyer-email-error')?.classList.add('hidden');
+
+            if (!name) return showBuyerEmailError('Isi nama lengkap dulu.');
+            if (!email) return showBuyerEmailError('Isi email dulu.');
+            if (password.length < 6) return showBuyerEmailError('Password minimal 6 karakter.');
+
+            try {
+                showToast('MENDAFTARKAN AKUN...');
+                const res = await fetch(`${FB_AUTH_URL}:signUp?key=${FIREBASE_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, returnSecureToken: true })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(buyerFriendlyAuthError(data.error?.message));
+                await finishBuyerEmailAuth(data, name);
+            } catch (e) {
+                showBuyerEmailError(e.message);
+            }
+        };
+
+        window.buyerEmailLogin = async () => {
+            const email = document.getElementById('buyer-email-input')?.value?.trim();
+            const password = document.getElementById('buyer-email-password')?.value || '';
+            document.getElementById('buyer-email-error')?.classList.add('hidden');
+
+            if (!email) return showBuyerEmailError('Isi email dulu.');
+            if (!password) return showBuyerEmailError('Isi password dulu.');
+
+            try {
+                showToast('MEMPROSES LOGIN...');
+                const res = await fetch(`${FB_AUTH_URL}:signInWithPassword?key=${FIREBASE_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, returnSecureToken: true })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(buyerFriendlyAuthError(data.error?.message));
+                await finishBuyerEmailAuth(data, null);
+            } catch (e) {
+                showBuyerEmailError(e.message);
+            }
         };
 
         function renderBuyerUI() {

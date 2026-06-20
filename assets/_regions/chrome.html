@@ -210,9 +210,28 @@
                 </div>
                 <div>
                     <p class="text-[11px] font-black text-slate-700 uppercase">Login dulu, yuk!</p>
-                    <p class="text-[9px] text-slate-400 font-bold mt-1">Order otomatis (Bayar Otomatis) wajib pakai akun. Login dengan Google, gratis & cepat.</p>
+                    <p class="text-[9px] text-slate-400 font-bold mt-1">Order otomatis (Bayar Otomatis) wajib pakai akun.</p>
                 </div>
                 <div id="google-signin-btn-container" class="flex justify-center"></div>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-slate-100"></div>
+                    <span class="text-[8px] font-black text-slate-300 uppercase">atau</span>
+                    <div class="flex-1 h-px bg-slate-100"></div>
+                </div>
+
+                <!-- Form Email & Password (daftar / masuk manual, tanpa OTP) -->
+                <div class="space-y-3 text-left">
+                    <input type="text" id="buyer-email-name" placeholder="Nama Lengkap" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 outline-none font-bold text-xs hidden" data-register-only>
+                    <input type="email" id="buyer-email-input" placeholder="Email" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 outline-none font-bold text-xs">
+                    <input type="password" id="buyer-email-password" placeholder="Password (min. 6 karakter)" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 outline-none font-bold text-xs">
+                    <p id="buyer-email-error" class="text-[8px] font-bold text-red-400 hidden"></p>
+                    <button id="buyer-email-submit-btn" onclick="buyerEmailLogin()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Masuk</button>
+                    <button onclick="toggleBuyerEmailMode()" class="w-full text-[8px] font-bold text-indigo-500 uppercase py-1">
+                        <span id="buyer-email-toggle-text">Belum punya akun? Daftar di sini</span>
+                    </button>
+                </div>
+
                 <p class="text-[8px] text-slate-300 font-bold">Produk lain (pesan via WhatsApp) tetap bisa tanpa akun.</p>
             </div>
 
