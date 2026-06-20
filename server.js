@@ -57,6 +57,8 @@ app.get('/game',            (req, res) => res.sendFile(path.join(__dirname, 'gam
 app.get('/lainnya',         (req, res) => res.sendFile(path.join(__dirname, 'lainnya.html')));
 app.get('/premium',         (req, res) => res.sendFile(path.join(__dirname, 'premium.html')));
 app.get('/sosmed',          (req, res) => res.sendFile(path.join(__dirname, 'sosmed.html')));
+app.get('/sewa',            (req, res) => res.sendFile(path.join(__dirname, 'sewa.html')));
+app.get('/sewa.html',       (req, res) => res.sendFile(path.join(__dirname, 'sewa.html')));
 app.get('/payment-success', (req, res) => res.sendFile(path.join(__dirname, 'payment-success.html')));
 
 // Fallback ke index.html
