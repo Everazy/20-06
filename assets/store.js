@@ -64,14 +64,8 @@
         }
 
         // Firestore REST operations
-        // fieldMask (opsional): array nama field yang BOLEH diubah. Tanpa ini, Firestore
-        // REST API akan menimpa SELURUH dokumen (field lain yang tidak dikirim akan terhapus) —
-        // makanya untuk update profil (bukan full replace seperti data produk admin) WAJIB isi fieldMask.
-        async function fsSet(collPath, docId, data, tokenOverride, fieldMask) {
-            let url = `${FB_BASE}/${collPath}/${docId}?key=${FIREBASE_API_KEY}`;
-            if (fieldMask && fieldMask.length) {
-                url += fieldMask.map(f => `&updateMask.fieldPaths=${encodeURIComponent(f)}`).join('');
-            }
+        async function fsSet(collPath, docId, data, tokenOverride) {
+            const url = `${FB_BASE}/${collPath}/${docId}?key=${FIREBASE_API_KEY}`;
             const headers = { 'Content-Type': 'application/json' };
             const tok = tokenOverride || _idToken;
             if (tok) headers['Authorization'] = `Bearer ${tok}`;
@@ -296,16 +290,10 @@
                         displayName: session.name,
                         email: session.email,
                         photoURL: session.photo,
-                        updatedAt: new Date().toISOString(),
-                        // Kode referral disimpan sebagai FIELD (bukan cuma dihitung di tampilan),
-                        // supaya backend bisa mencari pemilik kode ini saat ada yang klaim.
-                        referralCode: session.uid.substring(0, 8).toUpperCase()
+                        updatedAt: new Date().toISOString()
                     };
-                    const profileFieldMask = ['displayName', 'email', 'photoURL', 'updatedAt', 'referralCode'];
-                    if (_isNew) { profileData.createdAt = new Date().toISOString(); profileFieldMask.push('createdAt'); }
-                    // fieldMask wajib di sini — tanpa ini, field lain seperti points/referralClaimed/totalOrders
-                    // akan TERHAPUS setiap kali user login ulang (PATCH Firestore tanpa mask = full overwrite).
-                    await fsSet('users', session.uid, profileData, session.idToken, profileFieldMask);
+                    if (_isNew) profileData.createdAt = new Date().toISOString();
+                    await fsSet('users', session.uid, profileData, session.idToken);
                 } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
 
                 saveBuyerSession(session);
@@ -355,17 +343,8 @@
             if (!buyerUser) return;
             const input = document.getElementById('referral-input');
             const msgEl = document.getElementById('referral-claim-msg');
-            const referrerCode = input?.value?.trim().toUpperCase();
-            if (!referrerCode) return;
-
-            const ownCode = buyerUser.uid.substring(0, 8).toUpperCase();
-            if (referrerCode === ownCode) {
-                msgEl.className = 'text-[8px] font-bold text-red-400';
-                msgEl.innerText = 'Tidak bisa pakai kode referral milikmu sendiri.';
-                msgEl.classList.remove('hidden');
-                return;
-            }
-
+            const referrerUid = input?.value?.trim().toUpperCase();
+            if (!referrerUid) return;
             msgEl.className = 'text-[8px] font-bold text-slate-400';
             msgEl.innerText = 'Memproses...';
             msgEl.classList.remove('hidden');
@@ -373,7 +352,7 @@
                 const res = await fetch('/api/claim-referral', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ referrerCode, newUserUid: buyerUser.uid, newUserIdToken: buyerUser.idToken })
+                    body: JSON.stringify({ referrerUid, newUserUid: buyerUser.uid, newUserIdToken: buyerUser.idToken })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -515,12 +494,10 @@
                 const profileData2 = {
                     displayName: session.name,
                     email: session.email,
-                    updatedAt: new Date().toISOString(),
-                    referralCode: session.uid.substring(0, 8).toUpperCase()
+                    updatedAt: new Date().toISOString()
                 };
-                const profileFieldMask2 = ['displayName', 'email', 'updatedAt', 'referralCode'];
-                if (_isNew2) { profileData2.createdAt = new Date().toISOString(); profileFieldMask2.push('createdAt'); }
-                await fsSet('users', session.uid, profileData2, session.idToken, profileFieldMask2);
+                if (_isNew2) profileData2.createdAt = new Date().toISOString();
+                await fsSet('users', session.uid, profileData2, session.idToken);
             } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
 
             saveBuyerSession(session);
