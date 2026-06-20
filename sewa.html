@@ -410,7 +410,6 @@
                     <div class="bg-indigo-50 rounded-2xl p-4 text-center">
                         <p id="buyer-profile-points" class="text-xl font-black text-indigo-700">0</p>
                         <p class="text-[8px] font-black text-indigo-400 uppercase mt-1">Poin</p>
-                        <p class="text-[8px] font-bold text-indigo-400 mt-1">Saldo: Rp <span id="buyer-profile-points-rp">0</span></p>
                     </div>
                     <div class="bg-slate-50 rounded-2xl p-4 text-center">
                         <p id="buyer-profile-orders" class="text-xl font-black text-slate-700">0</p>
@@ -779,17 +778,16 @@
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
-    function getBuyerToken() {
+    function getBuyerSession() {
         try {
-            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
-            return s.idToken || null;
-        } catch { return null; }
+            return JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
+        } catch { return {}; }
+    }
+    function getBuyerToken() {
+        return getBuyerSession().idToken || null;
     }
     function getBuyerUid() {
-        try {
-            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
-            return s.uid || null;
-        } catch { return null; }
+        return getBuyerSession().uid || null;
     }
     function formatRp(n) {
         if (!n && n !== 0) return 'Rp -';
