@@ -125,6 +125,7 @@
             if (s) localStorage.setItem(BUYER_STORAGE_KEY, JSON.stringify(s));
             else localStorage.removeItem(BUYER_STORAGE_KEY);
             renderBuyerUI();
+            window.dispatchEvent(new Event('buyerSessionReady'));
         }
 
         async function restoreBuyerSession() {
@@ -154,7 +155,24 @@
                 buyerUser = null;
             }
             renderBuyerUI();
+            window.dispatchEvent(new Event('buyerSessionReady'));
         }
+
+        // === API publik untuk halaman lain (mis. sewa.html) ===
+        // Mengambil idToken pembeli yang VALID — auto-refresh jika sudah/akan kedaluwarsa.
+        // Pakai ini, bukan baca localStorage/sessionStorage manual, supaya selalu sinkron
+        // dengan logika refresh di atas dan tidak pernah mengirim token basi ke server.
+        window.getBuyerToken = async function() {
+            if (!buyerUser || !buyerUser.idToken) return null;
+            if (buyerUser.expiresAt && Date.now() > buyerUser.expiresAt - 60000) {
+                const refreshed = await refreshBuyerToken(buyerUser.refreshToken);
+                if (!refreshed) { saveBuyerSession(null); return null; }
+                buyerUser = { ...buyerUser, idToken: refreshed.idToken, refreshToken: refreshed.refreshToken, expiresAt: Date.now() + (parseInt(refreshed.expiresIn || '3600') * 1000) };
+                localStorage.setItem(BUYER_STORAGE_KEY, JSON.stringify(buyerUser));
+            }
+            return buyerUser.idToken;
+        };
+        window.getBuyerUid = function() { return buyerUser?.uid || null; };
 
         async function refreshBuyerToken(refreshToken) {
             if (!refreshToken) return null;
