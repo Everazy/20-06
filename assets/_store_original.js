@@ -128,6 +128,13 @@
             if (!raw) { renderBuyerUI(); return; }
             try {
                 const s = JSON.parse(raw);
+                // Jika tidak ada refreshToken, sesi tidak valid — hapus dan paksa login ulang
+                if (!s || !s.refreshToken) {
+                    localStorage.removeItem(BUYER_STORAGE_KEY);
+                    buyerUser = null;
+                    renderBuyerUI();
+                    return;
+                }
                 if (s.expiresAt && Date.now() > s.expiresAt - 60000) {
                     // Token hampir/sudah kedaluwarsa - refresh pakai refreshToken
                     const refreshed = await refreshBuyerToken(s.refreshToken);
@@ -137,7 +144,11 @@
                 } else {
                     buyerUser = s;
                 }
-            } catch (e) { buyerUser = null; }
+            } catch (e) {
+                // Sesi corrupt — bersihkan supaya user bisa login ulang
+                localStorage.removeItem(BUYER_STORAGE_KEY);
+                buyerUser = null;
+            }
             renderBuyerUI();
         }
 
@@ -170,9 +181,11 @@
 
         window.openBuyerModal = () => {
             document.getElementById('modal-buyer')?.classList.remove('hidden');
-            if (buyerUser) {
+            // Validasi buyerUser benar-benar valid (punya uid & refreshToken)
+            if (buyerUser && buyerUser.uid && buyerUser.refreshToken) {
                 showBuyerProfileView();
             } else {
+                if (buyerUser) saveBuyerSession(null); // bersihkan sesi tidak valid
                 showBuyerGuestView();
             }
         };
