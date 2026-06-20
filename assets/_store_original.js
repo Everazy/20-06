@@ -282,12 +282,18 @@
 
                 // Simpan/perbarui profil ke Firestore users/{uid}
                 try {
-                    await fsSet('users', session.uid, {
+                    // createdAt hanya diset pertama kali (PATCH tidak overwrite field yang tidak ada di updateMask,
+                    // tapi kita pakai conditional: cek dulu apakah user sudah ada)
+                    const _existCheck = await fetch(`${FB_BASE}/users/${session.uid}?key=${FIREBASE_API_KEY}`);
+                    const _isNew = !_existCheck.ok || !(await _existCheck.json()).fields?.createdAt;
+                    const profileData = {
                         displayName: session.name,
                         email: session.email,
                         photoURL: session.photo,
                         updatedAt: new Date().toISOString()
-                    }, session.idToken);
+                    };
+                    if (_isNew) profileData.createdAt = new Date().toISOString();
+                    await fsSet('users', session.uid, profileData, session.idToken);
                 } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
 
                 saveBuyerSession(session);
@@ -483,11 +489,15 @@
             };
 
             try {
-                await fsSet('users', session.uid, {
+                const _existCheck2 = await fetch(`${FB_BASE}/users/${session.uid}?key=${FIREBASE_API_KEY}`);
+                const _isNew2 = !_existCheck2.ok || !(await _existCheck2.json()).fields?.createdAt;
+                const profileData2 = {
                     displayName: session.name,
                     email: session.email,
                     updatedAt: new Date().toISOString()
-                }, session.idToken);
+                };
+                if (_isNew2) profileData2.createdAt = new Date().toISOString();
+                await fsSet('users', session.uid, profileData2, session.idToken);
             } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
 
             saveBuyerSession(session);
