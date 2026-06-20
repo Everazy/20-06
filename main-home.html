@@ -1,0 +1,142 @@
+    <!-- ====================== LANDING (HOME) ====================== -->
+    <main id="user-view" class="app-shell p-5 lg:p-8 pb-40">
+
+        <!-- Hero Banner Slider -->
+        <section class="hero-banner-section">
+            <div id="hero-banner" class="hero-banner">
+                <div class="hero-banner-track">
+                    <div class="hero-slide"><img src="./BANNER FREELANCE.png" alt="Banner Everastore 1"></div>
+                    <div class="hero-slide"><img src="./BANNER 2.png" alt="Banner Everastore 2"></div>
+                    <div class="hero-slide"><img src="./BANNER 3.png" alt="Banner Everastore 3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pencarian Produk -->
+        <section class="mb-8">
+            <div class="search-box">
+                <i class="fas fa-search text-indigo-500 text-sm"></i>
+                <input id="product-search-input" type="text" oninput="searchProducts()" placeholder="Cari produk, contoh: Netflix, ML, Instagram...">
+                <button onclick="clearSearchProducts()" type="button" class="text-slate-300 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Produk Terlaris -->
+        <section id="best-seller-section" class="mb-8 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">⭐ Produk Terlaris</h2>
+            </div>
+            <div id="best-seller-list" class="flex gap-4 overflow-x-auto pb-4 -mx-5 px-5 snap-x"></div>
+        </section>
+
+        <!-- Section 01: Kategori (tiap kartu = halaman sendiri) -->
+        <section class="mb-8">
+            <h2 class="section-eyebrow mb-4">01. Pilih Kategori</h2>
+            <div class="grid grid-cols-4 gap-3">
+                <a href="/game.html" id="btn-topup" class="cat-card">
+                    <div class="cat-card-icon cat-icon-indigo"><i class="fas fa-gamepad text-lg"></i></div>
+                    <span class="cat-card-label">Game</span>
+                </a>
+                <a href="/sosmed.html" id="btn-sosmed" class="cat-card">
+                    <div class="cat-card-icon cat-icon-blue"><i class="fas fa-users text-lg"></i></div>
+                    <span class="cat-card-label">Sosmed</span>
+                </a>
+                <a href="/premium.html" id="btn-premium" class="cat-card">
+                    <div class="cat-card-icon cat-icon-amber"><i class="fas fa-crown text-lg"></i></div>
+                    <span class="cat-card-label">Premium</span>
+                </a>
+                <a href="/lainnya.html" id="btn-lainnya" class="cat-card">
+                    <div class="cat-card-icon cat-icon-emerald"><i class="fas fa-box-open text-lg"></i></div>
+                    <span class="cat-card-label">Lainnya</span>
+                </a>
+            </div>
+            <!-- Sewa Tempat Jualan — baris kedua -->
+            <div class="mt-3">
+                <a href="/sewa.html" id="btn-sewa" class="cat-card flex-row gap-3 justify-start px-5 py-4" style="border-radius:1.25rem;">
+                    <div class="cat-card-icon cat-icon-emerald" style="width:40px;height:40px;min-width:40px;"><i class="fas fa-store text-base"></i></div>
+                    <div class="text-left">
+                        <span class="cat-card-label" style="font-size:9px;">Sewa Tempat Jualan</span>
+                        <p style="font-size:7px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;">Mulai Rp 2.000/hari · Pasang produkmu!</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-300 text-[10px] ml-auto"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- Tombol Bantuan / Help -->
+        <section class="mb-8">
+            <button onclick="openHelpModal()" type="button" class="w-full bg-white border border-indigo-100 rounded-[2rem] p-5 shadow-sm flex items-center justify-between active:scale-[0.98] transition-all">
+                <div class="flex items-center gap-4 text-left">
+                    <div class="w-11 h-11 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                        <i class="fas fa-circle-question text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[10px] font-black text-slate-800 uppercase tracking-[0.15em]">Bantuan / Help</h2>
+                        <p class="text-[8px] font-bold text-slate-400 uppercase mt-0.5">Cara order dan istilah store</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-indigo-400 text-xs"></i>
+            </button>
+        </section>
+
+        <!-- Link Cepat -->
+        <section class="mb-8">
+            <div class="grid grid-cols-3 gap-3">
+                <a id="google-drive-testimonial-link" href="https://drive.google.com/drive/folders/1J2REaUaDImUBaTf0kpGvGpTYe2b2GB4n?usp=drive_link" target="_blank" class="quick-link-card">
+                    <div class="quick-link-icon quick-link-blue"><i class="fab fa-google-drive text-lg"></i></div>
+                    <h3 class="text-[8px] font-black text-slate-800 uppercase leading-tight">Lihat Testimoni</h3>
+                    <p class="text-[7px] font-bold text-slate-400 uppercase leading-relaxed mt-1">Review pelanggan</p>
+                </a>
+                <a href="https://chat.whatsapp.com/HwPyeKhzD4tJWv7Dm9zQJe?mode=gi_t" target="_blank" class="quick-link-card">
+                    <div class="quick-link-icon quick-link-green"><i class="fab fa-whatsapp text-lg"></i></div>
+                    <h3 class="text-[8px] font-black text-slate-800 uppercase leading-tight">Grup WhatsApp</h3>
+                    <p class="text-[7px] font-bold text-slate-400 uppercase leading-relaxed mt-1">Promo & update</p>
+                </a>
+                <a id="secreto-testimonial-link" href="https://secreto.site/awspz7" target="_blank" class="quick-link-card">
+                    <div class="quick-link-icon quick-link-indigo"><i class="fas fa-comment-dots text-lg"></i></div>
+                    <h3 class="text-[8px] font-black text-slate-800 uppercase leading-tight">Bagikan Pengalaman</h3>
+                    <p class="text-[7px] font-bold text-slate-400 uppercase leading-relaxed mt-1">Kesan & masukan</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Promo Section -->
+        <section id="promo-home-section" class="mb-8 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">🔥 Promo Terbatas</h2>
+            </div>
+            <div id="promo-home-list" class="flex gap-4 overflow-x-auto pb-4 -mx-5 px-5 snap-x"></div>
+        </section>
+
+        <!-- Section Pilih Produk (dipakai untuk hasil pencarian global) -->
+        <section id="section-prod" class="mt-4 hidden fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="section-eyebrow">02. Pilih Produk</h2>
+                <button onclick="resetToHome()" class="text-[8px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full uppercase">Ganti</button>
+            </div>
+            <div id="list-prod" class="grid grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- Section Form & Varian -->
+        <section id="section-form" class="mt-4 hidden fade-in">
+            <p id="prod-desc" class="text-[10px] text-slate-500 mb-6 bg-white p-5 rounded-2xl italic shadow-sm border border-slate-100"></p>
+            <h2 class="section-eyebrow mb-4">03. Pilih Paket</h2>
+            <div id="list-var" class="space-y-6 mb-10"></div>
+
+            <div id="sosmed-controls" class="hidden space-y-5 mb-10 bg-white p-6 rounded-[2.5rem] border shadow-sm">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 mb-2 block uppercase tracking-widest text-center">Pilih Layanan</label>
+                    <select id="sosmed-service-select" onchange="updateSosmedPrice()" class="w-full bg-slate-50 p-4 rounded-2xl border-none font-bold text-sm text-center outline-none"></select>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 mb-2 block uppercase tracking-widest text-center">Jumlah Pesanan</label>
+                    <input type="number" id="sosmed-qty" oninput="updateSosmedPrice()" placeholder="0" class="w-full bg-slate-50 p-4 rounded-2xl border-none font-bold text-sm text-center outline-none">
+                    <div id="sosmed-price-info" class="mt-3 hidden text-center">
+                        <p id="sosmed-price-hint" class="text-[9px] text-indigo-600 font-black uppercase"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Sewa Tempat Jualan — Everastore</title>
+    <link rel="icon" type="image/jpeg" href="/EVERASTORE.jpeg">
+    <link rel="shortcut icon" type="image/jpeg" href="/EVERASTORE.jpeg">
+    <link rel="apple-touch-icon" href="/EVERASTORE.jpeg">
+    <meta property="og:title" content="Sewa Tempat Jualan — Everastore">
+    <meta property="og:description" content="Sewa tempat jualan di Everastore. Pasang produkmu, jangkau lebih banyak pembeli!">
+    <meta property="og:image" content="/EVERASTORE.jpeg">
+    <meta property="og:type" content="website">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/styles.css">
+    <style>
+        .rental-card {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            box-shadow: 0 1px 4px rgba(15,23,42,0.05);
+        }
+        .rental-card:active { transform: scale(0.98); }
+        .rental-card:hover { box-shadow: 0 4px 20px rgba(79,70,229,0.1); }
+        .rental-card-img {
+            width: 100%; height: 120px; object-fit: cover; background: #f1f5f9;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .rental-card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .rental-card-img .placeholder-icon { color: #cbd5e1; font-size: 2rem; }
+        .plan-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 1.25rem;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+        }
+        .plan-card.selected {
+            border-color: #4f46e5;
+            background: #f5f3ff;
+        }
+        .plan-card:active { transform: scale(0.97); }
+        .badge-cat {
+            display: inline-block;
+            font-size: 7px; font-weight: 900; letter-spacing: 0.15em;
+            text-transform: uppercase; padding: 2px 8px;
+            border-radius: 99px; background: #eef2ff; color: #4f46e5;
+        }
+        .expiry-badge {
+            font-size: 7px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.1em; color: #10b981;
+        }
+        body.dark .rental-card { background: #1e293b; border-color: #334155; }
+        body.dark .plan-card { background: #1e293b; border-color: #334155; }
+        body.dark .plan-card.selected { background: #2e1065; border-color: #7c3aed; }
+        body.dark .badge-cat { background: #2e1065; color: #a5b4fc; }
+        .my-listing-card {
+            background: white; border-radius: 1.25rem;
+            border: 1px solid #e2e8f0; padding: 1rem 1.25rem;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+        }
+        body.dark .my-listing-card { background: #1e293b; border-color: #334155; }
+        .tab-pill { border-radius: 99px; padding: 6px 16px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; transition: all 0.15s; cursor: pointer; }
+        .tab-pill.active { background: #4f46e5; color: white; }
+        .tab-pill:not(.active) { background: #f8fafc; color: #94a3b8; }
+        body.dark .tab-pill:not(.active) { background: #1e293b; color: #64748b; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Layar Loading -->
+    <div id="loading-overlay" class="loading-screen">
+        <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4 mx-auto"></div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Memuat Marketplace...</p>
+    </div>
+
+    <!-- Header & Navigasi -->
+    <nav class="bg-white/90 backdrop-blur border-b sticky top-0 z-50 px-6 py-4">
+        <div class="app-shell flex justify-between items-center">
+            <div onclick="goBrandHome()" class="cursor-pointer select-none active:opacity-50 transition-opacity">
+                <span class="font-extrabold text-indigo-600 text-xl uppercase tracking-tighter">Everastore</span>
+                <p class="text-[8px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">Premium Digital</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" id="theme-toggle" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-moon text-[12px]"></i>
+                </button>
+                <button onclick="openBuyerModal()" id="buyer-account-trigger" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors overflow-hidden">
+                    <i id="buyer-account-icon" class="fas fa-user text-[12px]"></i>
+                    <img id="buyer-account-avatar" src="" alt="" class="hidden w-full h-full object-cover">
+                </button>
+                <button onclick="showLogin()" id="login-trigger" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-user-shield text-[12px]"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main id="user-view" class="app-shell p-5 lg:p-8 pb-40">
+
+        <!-- Header kategori -->
+        <section class="category-hero category-hero-emerald mb-8">
+            <a href="/" class="category-hero-back"><i class="fas fa-chevron-left text-[11px]"></i></a>
+            <div class="category-hero-icon"><i class="fas fa-store"></i></div>
+            <div class="category-hero-text">
+                <h1 class="category-hero-title">Sewa Tempat Jualan</h1>
+                <p class="category-hero-tagline">Pasang produkmu, jangkau lebih banyak pembeli!</p>
+            </div>
+        </section>
+
+        <!-- Info harga sewa -->
+        <section class="mb-6">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm text-center">
+                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-calendar-day text-indigo-600 text-sm"></i>
+                    </div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Harian</p>
+                    <p class="text-base font-black text-indigo-600">Rp 2.000</p>
+                    <p class="text-[8px] text-slate-400 font-bold">per hari</p>
+                </div>
+                <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm text-center">
+                    <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-calendar-week text-amber-500 text-sm"></i>
+                    </div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Mingguan</p>
+                    <p class="text-base font-black text-amber-500">Rp 10.000</p>
+                    <p class="text-[8px] text-slate-400 font-bold">7 hari (hemat 30%)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Marketplace / Listing Saya -->
+        <section class="mb-6">
+            <div class="flex gap-2">
+                <button id="tab-marketplace" class="tab-pill active" onclick="switchTab('marketplace')">🛍️ Marketplace</button>
+                <button id="tab-mylisting" class="tab-pill" onclick="switchTab('mylisting')">📦 Listing Saya</button>
+            </div>
+        </section>
+
+        <!-- Pencarian -->
+        <section class="mb-6" id="search-section">
+            <div class="search-box">
+                <i class="fas fa-search text-indigo-500 text-sm"></i>
+                <input id="rental-search-input" type="text" oninput="filterListings()" placeholder="Cari produk, penjual...">
+                <button onclick="document.getElementById('rental-search-input').value=''; filterListings();" type="button" class="text-slate-300 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ── TAB MARKETPLACE ── -->
+        <section id="view-marketplace">
+            <div id="listings-grid" class="grid grid-cols-2 gap-4">
+                <!-- Diisi JS -->
+            </div>
+            <div id="listings-empty" class="hidden text-center py-16">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-store-slash text-slate-300 text-2xl"></i>
+                </div>
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Belum ada listing aktif</p>
+                <p class="text-[9px] text-slate-300 mt-1">Jadilah yang pertama berjualan!</p>
+            </div>
+            <div id="listings-loading" class="text-center py-12">
+                <div class="w-8 h-8 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mx-auto mb-3"></div>
+                <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Memuat listing...</p>
+            </div>
+        </section>
+
+        <!-- ── TAB LISTING SAYA ── -->
+        <section id="view-mylisting" class="hidden">
+            <!-- Tombol buat listing baru -->
+            <button onclick="openCreateModal()" class="w-full bg-indigo-600 text-white rounded-2xl p-4 flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100 mb-6 active:scale-[0.98] transition-all">
+                <i class="fas fa-plus-circle text-sm"></i>
+                Buat Listing Baru
+            </button>
+
+            <div id="my-listings-list" class="space-y-3">
+                <!-- Diisi JS -->
+            </div>
+            <div id="my-listings-empty" class="hidden text-center py-16">
+                <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-box-open text-indigo-300 text-2xl"></i>
+                </div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Belum punya listing</p>
+                <p class="text-[9px] text-slate-400 mt-1">Klik tombol di atas untuk mulai berjualan!</p>
+            </div>
+            <div id="my-listings-login-prompt" class="hidden text-center py-16">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-lock text-slate-300 text-2xl"></i>
+                </div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Login dulu untuk mengelola listing</p>
+                <button onclick="openBuyerModal()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black text-[9px] uppercase">Login / Daftar</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ════════════════════════════════════════
+         MODAL: Buat/Edit Listing
+    ════════════════════════════════════════ -->
+    <div id="modal-create-listing" class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="p-6 border-b text-center flex items-center justify-between">
+                <button onclick="closeCreateModal()" class="text-slate-300 hover:text-slate-600 transition-colors"><i class="fas fa-times"></i></button>
+                <h3 id="modal-listing-title" class="font-black text-indigo-600 uppercase tracking-[0.2em] text-[11px]">Buat Listing</h3>
+                <div class="w-6"></div>
+            </div>
+            <div class="modal-body p-6 space-y-4 overflow-y-auto">
+                <input type="hidden" id="edit-listing-id">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Nama Produk *</label>
+                    <input type="text" id="listing-name" placeholder="Contoh: Akun Netflix Premium..." class="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 outline-none font-bold text-xs">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Kategori</label>
+                    <select id="listing-category" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs outline-none">
+                        <option value="Game">🎮 Game</option>
+                        <option value="Sosmed">📱 Sosmed</option>
+                        <option value="Premium">👑 Premium</option>
+                        <option value="Lainnya">📦 Lainnya</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Deskripsi Produk *</label>
+                    <textarea id="listing-desc" placeholder="Jelaskan produk Anda secara detail..." class="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 font-bold text-xs h-24 outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Harga (Rp) *</label>
+                    <input type="number" id="listing-price" placeholder="0" min="0" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 outline-none font-bold text-xs">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">URL Gambar Produk</label>
+                    <input type="text" id="listing-image" placeholder="https://..." class="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 outline-none font-bold text-xs">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Kontak (WA / Telegram / dll)</label>
+                    <input type="text" id="listing-contact" placeholder="wa.me/62xxx atau @username" class="w-full bg-slate-50 p-3 rounded-xl border border-slate-100 outline-none font-bold text-xs">
+                </div>
+            </div>
+            <div class="p-6 border-t bg-slate-50">
+                <button onclick="saveListing()" id="btn-save-listing" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-indigo-100 active:scale-[0.98] transition-all">
+                    <span id="btn-save-listing-text">Simpan & Pilih Paket Sewa</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: Pilih Paket Sewa (setelah listing disimpan)
+    ════════════════════════════════════════ -->
+    <div id="modal-sewa-plan" class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="p-6 border-b text-center flex items-center justify-between">
+                <button onclick="closePlanModal()" class="text-slate-300 hover:text-slate-600 transition-colors"><i class="fas fa-times"></i></button>
+                <h3 class="font-black text-indigo-600 uppercase tracking-[0.2em] text-[11px]">Pilih Paket Sewa</h3>
+                <div class="w-6"></div>
+            </div>
+            <div class="modal-body p-6 space-y-4 overflow-y-auto">
+                <p class="text-[10px] text-slate-500 text-center">Pilih durasi sewa untuk listing <strong id="plan-listing-name" class="text-slate-700">-</strong></p>
+
+                <div class="plan-card selected" id="plan-daily" onclick="selectPlan('daily')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-calendar-day text-indigo-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-xs text-slate-800">Harian</p>
+                                <p class="text-[9px] text-slate-400 font-bold">Aktif 1 hari</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-sm text-indigo-600">Rp 2.000</p>
+                            <i id="plan-daily-check" class="fas fa-circle-check text-indigo-600 text-xs mt-1"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="plan-card" id="plan-weekly" onclick="selectPlan('weekly')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-calendar-week text-amber-500 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-black text-xs text-slate-800">Mingguan</p>
+                                <p class="text-[9px] text-slate-400 font-bold">Aktif 7 hari · hemat 30%</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-sm text-amber-500">Rp 10.000</p>
+                            <i id="plan-weekly-check" class="fas fa-circle text-slate-200 text-xs mt-1"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Nomor HP untuk pembayaran *</p>
+                    <input type="tel" id="sewa-phone" placeholder="08xxxxxxxxxx" class="w-full bg-white p-3 rounded-xl border border-slate-100 outline-none font-bold text-xs">
+                </div>
+            </div>
+            <div class="p-6 border-t bg-slate-50">
+                <button onclick="bayarSewa()" id="btn-bayar-sewa" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-indigo-100 active:scale-[0.98] transition-all">
+                    Bayar Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL: Detail Listing (view pembeli)
+    ════════════════════════════════════════ -->
+    <div id="modal-listing-detail" class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="p-6 border-b flex items-center justify-between">
+                <button onclick="closeDetailModal()" class="text-slate-300 hover:text-slate-600 transition-colors"><i class="fas fa-times"></i></button>
+                <h3 class="font-black text-slate-800 uppercase tracking-[0.15em] text-[11px]">Detail Produk</h3>
+                <div class="w-6"></div>
+            </div>
+            <div class="modal-body overflow-y-auto">
+                <div id="detail-img-wrap" class="w-full h-48 bg-slate-100 flex items-center justify-center overflow-hidden">
+                    <i id="detail-img-placeholder" class="fas fa-image text-slate-300 text-4xl"></i>
+                    <img id="detail-img" src="" alt="" class="hidden w-full h-full object-cover">
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <span id="detail-cat" class="badge-cat mb-2 inline-block">-</span>
+                            <h2 id="detail-name" class="font-black text-slate-800 text-sm leading-tight mt-1"></h2>
+                        </div>
+                        <p id="detail-price" class="font-black text-lg text-indigo-600 whitespace-nowrap"></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <img id="detail-seller-photo" src="" alt="" class="w-7 h-7 rounded-full object-cover bg-slate-100 hidden">
+                        <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center" id="detail-seller-icon">
+                            <i class="fas fa-user text-indigo-400 text-[10px]"></i>
+                        </div>
+                        <p id="detail-seller" class="text-[9px] font-black text-slate-400 uppercase"></p>
+                    </div>
+                    <p id="detail-desc" class="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-xl"></p>
+                </div>
+            </div>
+            <div class="p-6 border-t bg-slate-50">
+                <a id="detail-contact-btn" href="#" target="_blank" class="w-full bg-emerald-500 text-white py-4 rounded-xl font-black text-[10px] uppercase shadow-lg shadow-emerald-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-comment-dots text-xs"></i>
+                    Hubungi Penjual
+                </a>
+                <p class="text-[8px] text-slate-300 text-center mt-3 font-bold">Transaksi dilakukan langsung dengan penjual</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Toast -->
+    <div id="feedback-toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-[9px] font-black z-[999] transition-all transform scale-0 opacity-0 uppercase tracking-widest shadow-2xl"></div>
+
+    <script>window.EVERA_PAGE = "sewa";</script>
+    <script type="module" src="/assets/store.js"></script>
+    <script>
+    // ─── State ────────────────────────────────────────────────────────────────
+    let allListings = [];
+    let activePlan  = 'daily';
+    let pendingListingId = null;
+    let currentTab  = 'marketplace';
+
+    // ─── Init ─────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        loadListings();
+    });
+
+    // Cek setelah store.js load agar bisa cek login status
+    window.addEventListener('buyerSessionReady', () => {
+        if (currentTab === 'mylisting') loadMyListings();
+    });
+
+    // ─── Tab switching ─────────────────────────────────────────────────────────
+    function switchTab(tab) {
+        currentTab = tab;
+        const isMkt = tab === 'marketplace';
+        document.getElementById('view-marketplace').classList.toggle('hidden', !isMkt);
+        document.getElementById('view-mylisting').classList.toggle('hidden', isMkt);
+        document.getElementById('search-section').classList.toggle('hidden', !isMkt);
+        document.getElementById('tab-marketplace').classList.toggle('active', isMkt);
+        document.getElementById('tab-mylisting').classList.toggle('active', !isMkt);
+        if (!isMkt) loadMyListings();
+    }
+
+    // ─── Load listing publik ──────────────────────────────────────────────────
+    async function loadListings() {
+        try {
+            const res  = await fetch('/api/rental-listing');
+            const data = await res.json();
+            allListings = data.listings || [];
+            renderListings(allListings);
+        } catch (err) {
+            console.error(err);
+            allListings = [];
+            renderListings([]);
+        }
+    }
+
+    function renderListings(listings) {
+        const grid    = document.getElementById('listings-grid');
+        const empty   = document.getElementById('listings-empty');
+        const loading = document.getElementById('listings-loading');
+        loading.classList.add('hidden');
+
+        if (!listings.length) {
+            grid.innerHTML = '';
+            empty.classList.remove('hidden');
+            return;
+        }
+        empty.classList.add('hidden');
+        grid.innerHTML = listings.map(l => `
+            <div class="rental-card" onclick='openDetailModal(${JSON.stringify(JSON.stringify(l))})'>
+                <div class="rental-card-img">
+                    ${l.imageUrl
+                        ? `<img src="${escHtml(l.imageUrl)}" alt="${escHtml(l.productName)}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image placeholder-icon\\'></i>'">`
+                        : `<i class="fas fa-image placeholder-icon"></i>`}
+                </div>
+                <div class="p-3">
+                    <span class="badge-cat">${escHtml(l.category || 'Lainnya')}</span>
+                    <h3 class="font-black text-[11px] text-slate-800 mt-1 leading-tight line-clamp-2">${escHtml(l.productName)}</h3>
+                    <p class="font-black text-indigo-600 text-xs mt-1">${formatRp(l.price)}</p>
+                    <div class="flex items-center gap-1 mt-2">
+                        <i class="fas fa-user-circle text-slate-300 text-[10px]"></i>
+                        <p class="text-[8px] font-bold text-slate-400 truncate">${escHtml(l.sellerName || '-')}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterListings() {
+        const q = document.getElementById('rental-search-input').value.toLowerCase().trim();
+        if (!q) { renderListings(allListings); return; }
+        const filtered = allListings.filter(l =>
+            (l.productName || '').toLowerCase().includes(q) ||
+            (l.sellerName  || '').toLowerCase().includes(q) ||
+            (l.description || '').toLowerCase().includes(q) ||
+            (l.category    || '').toLowerCase().includes(q)
+        );
+        renderListings(filtered);
+    }
+
+    // ─── Load listing user sendiri ────────────────────────────────────────────
+    async function loadMyListings() {
+        const token = getBuyerToken();
+        const loginPrompt = document.getElementById('my-listings-login-prompt');
+        const emptyEl     = document.getElementById('my-listings-empty');
+        const listEl      = document.getElementById('my-listings-list');
+
+        if (!token) {
+            loginPrompt.classList.remove('hidden');
+            emptyEl.classList.add('hidden');
+            listEl.innerHTML = '';
+            return;
+        }
+        loginPrompt.classList.add('hidden');
+
+        try {
+            const res  = await fetch('/api/rental-listing');
+            const data = await res.json();
+            const uid  = getBuyerUid();
+            const mine = (data.listings || []).filter(l => l.sellerUid === uid || l.status === 'pending' && l.sellerUid === uid);
+
+            // Juga ambil semua (termasuk pending) dari Firestore — filter by uid dari listing_all
+            // Kita pakai endpoint yg sama, tapi listing publik hanya tampilkan yg aktif.
+            // Untuk tab "Listing Saya", tampilkan semua milik user termasuk pending.
+            // Endpoint GET sudah filter aktif saja — untuk akurasi kita bisa cek dari listing yang kita tahu.
+            // (Cukup untuk MVP; listing pending akan muncul setelah bayar & aktif)
+
+            if (!mine.length) {
+                emptyEl.classList.remove('hidden');
+                listEl.innerHTML = '';
+                return;
+            }
+            emptyEl.classList.add('hidden');
+            const now = Date.now();
+            listEl.innerHTML = mine.map(l => {
+                const expiry = l.expiresAt ? new Date(l.expiresAt) : null;
+                const active = expiry && expiry.getTime() > now;
+                const timeLeft = expiry ? timeUntil(expiry) : 'Belum aktif';
+                return `
+                <div class="my-listing-card flex items-start gap-3">
+                    <div class="w-14 h-14 rounded-xl bg-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                        ${l.imageUrl
+                            ? `<img src="${escHtml(l.imageUrl)}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image text-slate-300 text-lg\\'></i>'">`
+                            : `<i class="fas fa-image text-slate-300 text-lg"></i>`}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-black text-[11px] text-slate-800 truncate">${escHtml(l.productName)}</p>
+                        <p class="font-bold text-[10px] text-indigo-600">${formatRp(l.price)}</p>
+                        <p class="${active ? 'text-emerald-500' : 'text-amber-500'} text-[8px] font-black uppercase mt-0.5">
+                            <i class="fas fa-${active ? 'circle-check' : 'clock'} mr-0.5"></i>
+                            ${active ? 'Aktif · ' + timeLeft : timeLeft}
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-2 flex-shrink-0">
+                        <button onclick="openRenewModal('${l.id}','${escHtml(l.productName)}')" class="text-[8px] font-black text-white bg-indigo-600 px-3 py-1.5 rounded-full uppercase">Perpanjang</button>
+                        <button onclick="editListing(${JSON.stringify(JSON.stringify(l))})" class="text-[8px] font-black text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full uppercase">Edit</button>
+                        <button onclick="deleteListing('${l.id}')" class="text-[8px] font-black text-red-400 bg-red-50 px-3 py-1.5 rounded-full uppercase">Hapus</button>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (err) {
+            console.error(err);
+            showToastLocal('Gagal memuat listing kamu.');
+        }
+    }
+
+    // ─── Create / Edit Modal ──────────────────────────────────────────────────
+    function openCreateModal() {
+        const token = getBuyerToken();
+        if (!token) { openBuyerModal(); return; }
+        document.getElementById('edit-listing-id').value = '';
+        document.getElementById('listing-name').value    = '';
+        document.getElementById('listing-desc').value    = '';
+        document.getElementById('listing-price').value   = '';
+        document.getElementById('listing-image').value   = '';
+        document.getElementById('listing-contact').value = '';
+        document.getElementById('listing-category').value = 'Lainnya';
+        document.getElementById('modal-listing-title').textContent = 'Buat Listing';
+        document.getElementById('btn-save-listing-text').textContent = 'Simpan & Pilih Paket Sewa';
+        document.getElementById('modal-create-listing').classList.remove('hidden');
+    }
+
+    function editListing(jsonStr) {
+        const l = JSON.parse(jsonStr);
+        document.getElementById('edit-listing-id').value   = l.id || '';
+        document.getElementById('listing-name').value      = l.productName || '';
+        document.getElementById('listing-desc').value      = l.description || '';
+        document.getElementById('listing-price').value     = l.price || '';
+        document.getElementById('listing-image').value     = l.imageUrl || '';
+        document.getElementById('listing-contact').value   = l.contactInfo || '';
+        document.getElementById('listing-category').value  = l.category || 'Lainnya';
+        document.getElementById('modal-listing-title').textContent  = 'Edit Listing';
+        document.getElementById('btn-save-listing-text').textContent = 'Simpan';
+        document.getElementById('modal-create-listing').classList.remove('hidden');
+    }
+
+    function closeCreateModal() {
+        document.getElementById('modal-create-listing').classList.add('hidden');
+    }
+
+    async function saveListing() {
+        const token = getBuyerToken();
+        if (!token) { openBuyerModal(); return; }
+
+        const listingId   = document.getElementById('edit-listing-id').value.trim();
+        const productName = document.getElementById('listing-name').value.trim();
+        const description = document.getElementById('listing-desc').value.trim();
+        const priceVal    = parseFloat(document.getElementById('listing-price').value);
+        const imageUrl    = document.getElementById('listing-image').value.trim();
+        const category    = document.getElementById('listing-category').value;
+        const contactInfo = document.getElementById('listing-contact').value.trim();
+
+        if (!productName) { showToastLocal('Nama produk wajib diisi!'); return; }
+        if (!description) { showToastLocal('Deskripsi wajib diisi!'); return; }
+        if (isNaN(priceVal) || priceVal < 0) { showToastLocal('Harga tidak valid!'); return; }
+
+        const btn = document.getElementById('btn-save-listing');
+        btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+        try {
+            const res  = await fetch('/api/rental-listing', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ action: 'create', listingId: listingId || undefined, productName, description, price: priceVal, imageUrl, category, contactInfo })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'Gagal simpan.');
+
+            closeCreateModal();
+
+            if (!listingId) {
+                // Listing baru → minta bayar sewa
+                pendingListingId = data.listingId;
+                openPlanModal(data.listingId, productName);
+            } else {
+                showToastLocal('Listing berhasil diperbarui!');
+                loadMyListings();
+                loadListings();
+            }
+        } catch (err) {
+            showToastLocal(err.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = document.getElementById('edit-listing-id').value ? 'Simpan' : 'Simpan & Pilih Paket Sewa';
+        }
+    }
+
+    async function deleteListing(listingId) {
+        const token = getBuyerToken();
+        if (!token) { openBuyerModal(); return; }
+        if (!confirm('Hapus listing ini?')) return;
+        try {
+            const res  = await fetch('/api/rental-listing', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ action: 'delete', listingId })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'Gagal hapus.');
+            showToastLocal('Listing dihapus.');
+            loadMyListings(); loadListings();
+        } catch (err) { showToastLocal(err.message); }
+    }
+
+    // ─── Plan / Bayar Sewa ─────────────────────────────────────────────────────
+    function openPlanModal(listingId, productName) {
+        pendingListingId = listingId;
+        document.getElementById('plan-listing-name').textContent = productName || '-';
+        selectPlan('daily');
+        document.getElementById('modal-sewa-plan').classList.remove('hidden');
+    }
+
+    function openRenewModal(listingId, productName) {
+        openPlanModal(listingId, productName);
+    }
+
+    function closePlanModal() {
+        document.getElementById('modal-sewa-plan').classList.add('hidden');
+    }
+
+    function selectPlan(plan) {
+        activePlan = plan;
+        document.getElementById('plan-daily').classList.toggle('selected', plan === 'daily');
+        document.getElementById('plan-weekly').classList.toggle('selected', plan === 'weekly');
+        document.getElementById('plan-daily-check').className  = `fas fa-${plan === 'daily'  ? 'circle-check text-indigo-600' : 'circle text-slate-200'} text-xs mt-1`;
+        document.getElementById('plan-weekly-check').className = `fas fa-${plan === 'weekly' ? 'circle-check text-amber-500'  : 'circle text-slate-200'} text-xs mt-1`;
+    }
+
+    async function bayarSewa() {
+        const token = getBuyerToken();
+        if (!token) { openBuyerModal(); return; }
+        const phone = document.getElementById('sewa-phone').value.trim();
+        if (!phone) { showToastLocal('Nomor HP wajib diisi!'); return; }
+        if (!pendingListingId) { showToastLocal('ID listing tidak ditemukan.'); return; }
+
+        const btn = document.getElementById('btn-bayar-sewa');
+        btn.disabled = true; btn.textContent = 'Memproses...';
+
+        try {
+            const res  = await fetch('/api/rental-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ listingId: pendingListingId, plan: activePlan, buyerPhone: phone })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'Gagal membuat invoice.');
+
+            closePlanModal();
+            if (data.paymentUrl) {
+                showToastLocal('Menuju halaman pembayaran...');
+                setTimeout(() => { window.open(data.paymentUrl, '_blank'); }, 800);
+            } else {
+                showToastLocal('Invoice dibuat! Cek WA/email untuk link bayar.');
+            }
+        } catch (err) {
+            showToastLocal(err.message);
+        } finally {
+            btn.disabled = false; btn.textContent = 'Bayar Sekarang';
+        }
+    }
+
+    // ─── Detail Modal (pembeli) ────────────────────────────────────────────────
+    function openDetailModal(jsonStr) {
+        const l = JSON.parse(jsonStr);
+        document.getElementById('detail-name').textContent   = l.productName || '-';
+        document.getElementById('detail-cat').textContent    = l.category || 'Lainnya';
+        document.getElementById('detail-price').textContent  = formatRp(l.price);
+        document.getElementById('detail-desc').textContent   = l.description || '-';
+        document.getElementById('detail-seller').textContent = l.sellerName || '-';
+
+        const img = document.getElementById('detail-img');
+        const ph  = document.getElementById('detail-img-placeholder');
+        if (l.imageUrl) { img.src = l.imageUrl; img.classList.remove('hidden'); ph.classList.add('hidden'); }
+        else            { img.classList.add('hidden'); ph.classList.remove('hidden'); }
+
+        const sellerPhoto = document.getElementById('detail-seller-photo');
+        const sellerIcon  = document.getElementById('detail-seller-icon');
+        if (l.sellerPhoto) { sellerPhoto.src = l.sellerPhoto; sellerPhoto.classList.remove('hidden'); sellerIcon.classList.add('hidden'); }
+        else               { sellerPhoto.classList.add('hidden'); sellerIcon.classList.remove('hidden'); }
+
+        const contactBtn = document.getElementById('detail-contact-btn');
+        if (l.contactInfo) {
+            let href = l.contactInfo;
+            if (/^08\d+/.test(href)) href = `https://wa.me/62${href.slice(1)}`;
+            else if (/^\+/.test(href)) href = `https://wa.me/${href.replace(/\D/g,'')}`;
+            contactBtn.href = href;
+            contactBtn.style.display = '';
+        } else {
+            contactBtn.href = '#'; contactBtn.style.display = 'none';
+        }
+
+        document.getElementById('modal-listing-detail').classList.remove('hidden');
+    }
+
+    function closeDetailModal() {
+        document.getElementById('modal-listing-detail').classList.add('hidden');
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+    function getBuyerToken() {
+        try {
+            const s = JSON.parse(sessionStorage.getItem('buyerSession') || '{}');
+            return s.idToken || null;
+        } catch { return null; }
+    }
+    function getBuyerUid() {
+        try {
+            const s = JSON.parse(sessionStorage.getItem('buyerSession') || '{}');
+            return s.uid || null;
+        } catch { return null; }
+    }
+    function formatRp(n) {
+        if (!n && n !== 0) return 'Rp -';
+        return 'Rp ' + Number(n).toLocaleString('id-ID');
+    }
+    function escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function timeUntil(date) {
+        const diff = date.getTime() - Date.now();
+        if (diff <= 0) return 'Kedaluwarsa';
+        const h = Math.floor(diff / 3600000);
+        const d = Math.floor(h / 24);
+        return d > 0 ? `${d} hari lagi` : `${h} jam lagi`;
+    }
+    function showToastLocal(msg) {
+        if (window.showToast) { window.showToast(msg); return; }
+        const t = document.getElementById('feedback-toast');
+        t.textContent = msg;
+        t.classList.remove('scale-0','opacity-0');
+        t.classList.add('scale-100','opacity-100');
+        setTimeout(() => { t.classList.remove('scale-100','opacity-100'); t.classList.add('scale-0','opacity-0'); }, 2500);
+    }
+    </script>
+</body>
+</html>
