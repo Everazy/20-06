@@ -10,19 +10,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Load semua API handler
-const { default: adminLogin }        = await import('./api/admin-login.js');
-const { default: checkPayment }      = await import('./api/check-payment.js');
-const { default: createPayment }     = await import('./api/create-payment.js');
-const { default: insiderCatalog }    = await import('./api/insider-catalog.js');
-const { default: manageStock }       = await import('./api/manage-stock.js');
-const { default: paymentCallback }   = await import('./api/payment-callback.js');
-const { default: toggleAutopayment } = await import('./api/toggle-autopayment.js');
-const { default: myIp }              = await import('./api/my-ip.js');
-const { default: cekNickname }       = await import('./api/cek-nickname.js');
-const { default: myOrders }          = await import('./api/my-orders.js');
-const { default: rentalListing }     = await import('./api/rental-listing.js');
-const { default: rentalPayment }     = await import('./api/rental-payment.js');
-const { default: rentalCallback }    = await import('./api/rental-callback.js');
+const { default: adminLogin }        = await import('./lib/admin-login.js');
+const { default: checkPayment }      = await import('./lib/check-payment.js');
+const { default: createPayment }     = await import('./lib/create-payment.js');
+const { default: insiderCatalog }    = await import('./lib/insider-catalog.js');
+const { default: manageStock }       = await import('./lib/manage-stock.js');
+const { default: paymentCallback }   = await import('./lib/payment-callback.js');
+const { default: toggleAutopayment } = await import('./lib/toggle-autopayment.js');
+const { default: myIp }              = await import('./lib/my-ip.js');
+const { default: cekNickname }       = await import('./lib/cek-nickname.js');
+const { default: myOrders }          = await import('./lib/my-orders.js');
+const { default: rentalListing }     = await import('./lib/rental-listing.js');
+const { default: rentalPayment }     = await import('./lib/rental-payment.js');
+const { default: rentalCallback }    = await import('./lib/rental-callback.js');
 
 // ── MAINTENANCE MODE ──────────────────────────────────────────────────
 // Set MAINTENANCE_MODE=true di Railway Variables untuk aktifkan

@@ -2,11 +2,11 @@
   "version": 2,
   "functions": {
     "server.js": {
-      "includeFiles": "{*.html,assets/**,BANNER*.png,EVERASTORE.jpeg}"
+      "includeFiles": "{*.html,assets/**,lib/**,BANNER*.png,EVERASTORE.jpeg}"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    { "source": "/api/(.*)", "destination": "/server.js" }
   ],
   "headers": [
     {
