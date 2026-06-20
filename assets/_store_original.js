@@ -113,6 +113,10 @@
         // "tanpa SDK" yang sudah dipakai di file ini.
         const GOOGLE_CLIENT_ID = "PASANG_GOOGLE_CLIENT_ID_DI_SINI.apps.googleusercontent.com";
         const BUYER_STORAGE_KEY = 'evr_buyer_session';
+        const POINTS_PER_ORDER   = 10;
+        const POINTS_FIRST_LOGIN = 1000;
+        const POINTS_REFERRAL    = 1000;
+        const POINTS_TO_RUPIAH   = 1; // 1 poin = Rp1
         let buyerUser = null; // { uid, name, email, photo, idToken, refreshToken, expiresAt }
         let _pendingAutoOrderAfterLogin = false;
 
@@ -210,6 +214,9 @@
             document.getElementById('buyer-profile-avatar').src = buyerUser.photo || '';
             document.getElementById('buyer-profile-name').innerText = buyerUser.name || 'Pembeli';
             document.getElementById('buyer-profile-email').innerText = buyerUser.email || '';
+            // Set kode referral langsung dari UID tanpa tunggu fetch
+            const refEl = document.getElementById('buyer-referral-code');
+            if (refEl && buyerUser.uid) refEl.innerText = buyerUser.uid.substring(0, 8).toUpperCase();
             loadBuyerDashboard();
         }
 
@@ -218,8 +225,14 @@
             try {
                 const res = await fetch(`/api/my-orders?uid=${encodeURIComponent(buyerUser.uid)}`);
                 const data = await res.json();
-                document.getElementById('buyer-profile-points').innerText = data.points ?? 0;
+                const pts = data.points ?? 0;
+                document.getElementById('buyer-profile-points').innerText = pts;
+                const rpEl = document.getElementById('buyer-profile-points-rp');
+                if (rpEl) rpEl.innerText = pts.toLocaleString('id-ID');
                 document.getElementById('buyer-profile-orders').innerText = data.totalOrders ?? 0;
+                // Kode referral = 8 karakter pertama UID (unik & mudah dibagikan)
+                const refEl = document.getElementById('buyer-referral-code');
+                if (refEl) refEl.innerText = buyerUser.uid.substring(0, 8).toUpperCase();
                 const histEl = document.getElementById('buyer-order-history');
                 if (!data.orders || data.orders.length === 0) {
                     histEl.innerHTML = '<p class="text-[9px] text-slate-300 font-bold text-center py-4">Belum ada order otomatis.</p>';
@@ -278,7 +291,19 @@
                 } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
 
                 saveBuyerSession(session);
-                showToast('LOGIN BERHASIL!');
+
+                // Bonus login pertama
+                try {
+                    const bonusRes = await fetch('/api/first-login-bonus', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ uid: session.uid, idToken: session.idToken })
+                    });
+                    const bonusData = await bonusRes.json();
+                    if (bonusData.awarded) showToast(`🎉 BONUS LOGIN PERTAMA! +${POINTS_FIRST_LOGIN} POIN`);
+                    else showToast('LOGIN BERHASIL!');
+                } catch { showToast('LOGIN BERHASIL!'); }
+
                 showBuyerProfileView();
 
                 if (_pendingAutoOrderAfterLogin) {
@@ -296,6 +321,109 @@
             saveBuyerSession(null);
             closeBuyerModal();
             showToast('BERHASIL LOGOUT');
+        };
+
+        // === SISTEM POIN ===
+
+        // Salin kode referral ke clipboard
+        window.copyReferralCode = () => {
+            const code = document.getElementById('buyer-referral-code')?.innerText;
+            if (!code || code === '-') return;
+            navigator.clipboard.writeText(code).then(() => showToast('KODE REFERRAL DISALIN!'));
+        };
+
+        // Klaim kode referral orang lain (satu kali saja)
+        window.claimReferral = async () => {
+            if (!buyerUser) return;
+            const input = document.getElementById('referral-input');
+            const msgEl = document.getElementById('referral-claim-msg');
+            const referrerUid = input?.value?.trim().toUpperCase();
+            if (!referrerUid) return;
+            msgEl.className = 'text-[8px] font-bold text-slate-400';
+            msgEl.innerText = 'Memproses...';
+            msgEl.classList.remove('hidden');
+            try {
+                const res = await fetch('/api/claim-referral', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referrerUid, newUserUid: buyerUser.uid, newUserIdToken: buyerUser.idToken })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msgEl.className = 'text-[8px] font-bold text-green-500';
+                    msgEl.innerText = '✅ Referral berhasil diklaim! Temanmu dapat +1.000 poin.';
+                    input.value = '';
+                    document.getElementById('referral-claim-section').style.display = 'none';
+                } else {
+                    msgEl.className = 'text-[8px] font-bold text-red-400';
+                    msgEl.innerText = data.error || 'Gagal klaim referral.';
+                }
+            } catch {
+                msgEl.className = 'text-[8px] font-bold text-red-400';
+                msgEl.innerText = 'Gagal terhubung ke server.';
+            }
+        };
+
+        // Tampilkan/sembunyikan section redeem poin di checkout berdasarkan login status
+        function refreshCheckoutPointsUI() {
+            const section = document.getElementById('redeem-points-section');
+            if (!section) return;
+            if (buyerUser) {
+                section.classList.remove('hidden');
+                loadCheckoutPoints();
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        let _pointsApplied = 0; // poin yang akan dipakai di order ini
+
+        async function loadCheckoutPoints() {
+            if (!buyerUser) return;
+            try {
+                const res = await fetch(`/api/my-orders?uid=${encodeURIComponent(buyerUser.uid)}`);
+                const data = await res.json();
+                const el = document.getElementById('checkout-points-available');
+                if (el) el.innerText = data.points ?? 0;
+            } catch {}
+        }
+
+        window.applyPoints = async () => {
+            if (!buyerUser) return;
+            const input = document.getElementById('checkout-points-input');
+            const msgEl = document.getElementById('checkout-points-msg');
+            const pointsToUse = parseInt(input?.value || '0');
+            if (!pointsToUse || pointsToUse < 1) {
+                msgEl.className = 'text-[8px] font-bold text-red-400';
+                msgEl.innerText = 'Masukkan jumlah poin yang valid.';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+            msgEl.className = 'text-[8px] font-bold text-slate-400';
+            msgEl.innerText = 'Memverifikasi...';
+            msgEl.classList.remove('hidden');
+            try {
+                const res = await fetch('/api/redeem-points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: buyerUser.uid, idToken: buyerUser.idToken, pointsToUse })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    _pointsApplied = pointsToUse;
+                    msgEl.className = 'text-[8px] font-bold text-green-500';
+                    msgEl.innerText = `✅ Diskon Rp${pointsToUse.toLocaleString('id-ID')} diterapkan! Sisa poin: ${data.remainingPoints}`;
+                    const el = document.getElementById('checkout-points-available');
+                    if (el) el.innerText = data.remainingPoints;
+                    input.disabled = true;
+                } else {
+                    msgEl.className = 'text-[8px] font-bold text-red-400';
+                    msgEl.innerText = data.error || 'Gagal memakai poin.';
+                }
+            } catch {
+                msgEl.className = 'text-[8px] font-bold text-red-400';
+                msgEl.innerText = 'Gagal terhubung ke server.';
+            }
         };
 
         // === LOGIN/DAFTAR EMAIL & PASSWORD (alternatif Google, tanpa OTP) ===
@@ -363,7 +491,19 @@
             } catch (e) { console.warn('[Buyer] Gagal sinkron profil:', e); }
 
             saveBuyerSession(session);
-            showToast('LOGIN BERHASIL!');
+
+            // Bonus login pertama
+            try {
+                const bonusRes = await fetch('/api/first-login-bonus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: session.uid, idToken: session.idToken })
+                });
+                const bonusData = await bonusRes.json();
+                if (bonusData.awarded) showToast(`🎉 BONUS LOGIN PERTAMA! +${POINTS_FIRST_LOGIN} POIN`);
+                else showToast('LOGIN BERHASIL!');
+            } catch { showToast('LOGIN BERHASIL!'); }
+
             showBuyerProfileView();
 
             if (_pendingAutoOrderAfterLogin) {
