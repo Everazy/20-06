@@ -51,6 +51,12 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  if (!FB_KEY || !process.env.FIREBASE_PROJECT_ID) {
+    return res.status(500).json({
+      error: 'Konfigurasi server belum lengkap: FIREBASE_API_KEY / FIREBASE_PROJECT_ID belum diset di environment variables (Railway).'
+    });
+  }
+
   try {
     const authHeader = req.headers.authorization || '';
     const token = authHeader.replace('Bearer ', '').trim();

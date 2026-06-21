@@ -69,6 +69,16 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Kalau env var server (Railway) belum diset, semua request akan gagal
+  // dengan pesan 401 yang menyesatkan ("Token tidak valid") padahal
+  // sebenarnya server tidak bisa menghubungi Firebase sama sekali.
+  // Tangkap di sini supaya error-nya jelas.
+  if (!FB_KEY || !process.env.FIREBASE_PROJECT_ID) {
+    return res.status(500).json({
+      error: 'Konfigurasi server belum lengkap: FIREBASE_API_KEY / FIREBASE_PROJECT_ID belum diset di environment variables (Railway).'
+    });
+  }
+
   // ── GET: daftar listing aktif ──────────────────────────────────────────────
   if (req.method === 'GET') {
     try {
