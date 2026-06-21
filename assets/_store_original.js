@@ -575,6 +575,12 @@
         };
 
         function renderBuyerUI() {
+            // Beritahu halaman lain (mis. sewa.html) bahwa status sesi pembeli
+            // sudah selesai dicek/diperbarui, beserta status login saat ini.
+            window.dispatchEvent(new CustomEvent('buyerSessionReady', {
+                detail: { loggedIn: !!(buyerUser && buyerUser.uid) }
+            }));
+
             const icon = document.getElementById('buyer-account-icon');
             const avatar = document.getElementById('buyer-account-avatar');
             if (!icon || !avatar) return;
@@ -802,6 +808,9 @@ window.addEventListener('scroll', updateFloatingButtons, { passive: true });
 
 // --- DATA LISTENER (REST polling) ---
         let _pollingInterval = null;
+        let _pollingDelay = 30000;      // current polling interval (grows on repeated errors)
+        const _POLL_BASE = 30000;       // normal interval: 30s
+        const _POLL_MAX  = 5 * 60000;   // backoff cap: 5 min
         async function startListening() {
             async function fetchProducts() {
                 try {
@@ -811,6 +820,13 @@ window.addEventListener('scroll', updateFloatingButtons, { passive: true });
 
                     const path = `artifacts/${appId}/public/data/products`;
                     const items = await fsList(path);
+
+                    // Fetch sukses -> reset backoff ke interval normal
+                    if (_pollingDelay !== _POLL_BASE) {
+                        _pollingDelay = _POLL_BASE;
+                        if (_pollingInterval) clearInterval(_pollingInterval);
+                        _pollingInterval = setInterval(fetchProducts, _pollingDelay);
+                    }
 
                     // Pastikan items valid sebelum reset storeData
                     if (!items || items.length === 0) {
@@ -858,11 +874,21 @@ window.addEventListener('scroll', updateFloatingButtons, { passive: true });
                 } catch (error) {
                     console.error("Firestore Error:", error);
                     hideOverlay();
+
+                    // Kalau quota Firestore habis (429/RESOURCE_EXHAUSTED), jangan terus
+                    // menghantam API setiap 30 detik (itu cuma memperparah quota habis).
+                    // Mundur (backoff) secara eksponensial sampai maksimum 5 menit.
+                    const msg = String(error && error.message || '');
+                    if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('429') || msg.includes('Quota exceeded')) {
+                        _pollingDelay = Math.min(_pollingDelay * 2, _POLL_MAX);
+                        if (_pollingInterval) clearInterval(_pollingInterval);
+                        _pollingInterval = setInterval(fetchProducts, _pollingDelay);
+                    }
                 }
             }
             await fetchProducts();
             if (_pollingInterval) clearInterval(_pollingInterval);
-            _pollingInterval = setInterval(fetchProducts, 30000);
+            _pollingInterval = setInterval(fetchProducts, _pollingDelay);
         }
         // --- AUTH LOGIC (REST) ---
         // Cek token admin dari localStorage
