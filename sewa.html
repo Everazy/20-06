@@ -778,23 +778,17 @@
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
-    // NOTE: store.js menyimpan sesi pembeli di localStorage dengan key
-    // 'evr_buyer_session' (lihat BUYER_STORAGE_KEY di assets/store.js),
-    // BUKAN di sessionStorage 'buyerSession'. Sebelumnya kode di sini membaca
-    // key yang salah sehingga token selalu null/invalid -> request ke
-    // /api/rental-listing selalu gagal dengan 401.
-    function _readBuyerSession() {
+    function getBuyerToken() {
         try {
-            return JSON.parse(localStorage.getItem('evr_buyer_session') || 'null');
+            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
+            return s.idToken || null;
         } catch { return null; }
     }
-    function getBuyerToken() {
-        const s = _readBuyerSession();
-        return s?.idToken || null;
-    }
     function getBuyerUid() {
-        const s = _readBuyerSession();
-        return s?.uid || null;
+        try {
+            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
+            return s.uid || null;
+        } catch { return null; }
     }
     function formatRp(n) {
         if (!n && n !== 0) return 'Rp -';
