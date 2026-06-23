@@ -444,6 +444,15 @@
         loadListings();
     });
 
+    // Cegah bfcache: reload halaman jika dikembalikan dari cache browser
+    // (terjadi saat user kembali dari halaman pembayaran QRIS)
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) {
+            // Halaman di-restore dari bfcache — reload agar DOM segar
+            window.location.reload();
+        }
+    });
+
     // Cek setelah store.js load agar bisa cek login status
     window.addEventListener('buyerSessionReady', () => {
         if (currentTab === 'mylisting') loadMyListings();
@@ -585,34 +594,47 @@
         }
     }
 
+    // ─── Helper: set elemen dengan aman (null-safe) ──────────────────────────
+    function safeSet(id, prop, val) {
+        const el = document.getElementById(id);
+        if (el) el[prop] = val;
+    }
+    function safeClass(id, method, ...classes) {
+        const el = document.getElementById(id);
+        if (el) el.classList[method](...classes);
+    }
+
     // ─── Create / Edit Modal ──────────────────────────────────────────────────
     function openCreateModal() {
         const token = getBuyerToken();
-        if (!token) { openBuyerModal(); return; }
-        document.getElementById('edit-listing-id').value = '';
-        document.getElementById('listing-name').value    = '';
-        document.getElementById('listing-desc').value    = '';
-        document.getElementById('listing-price').value   = '';
-        document.getElementById('listing-image').value   = '';
-        document.getElementById('listing-contact').value = '';
-        document.getElementById('listing-category').value = 'Lainnya';
-        document.getElementById('modal-listing-title').textContent = 'Buat Listing';
-        document.getElementById('btn-save-listing-text').textContent = 'Simpan & Pilih Paket Sewa';
-        document.getElementById('modal-create-listing').classList.remove('hidden');
+        if (!token) {
+            if (window.openBuyerModal) window.openBuyerModal();
+            return;
+        }
+        safeSet('edit-listing-id', 'value', '');
+        safeSet('listing-name',    'value', '');
+        safeSet('listing-desc',    'value', '');
+        safeSet('listing-price',   'value', '');
+        safeSet('listing-image',   'value', '');
+        safeSet('listing-contact', 'value', '');
+        safeSet('listing-category','value', 'Lainnya');
+        safeSet('modal-listing-title',    'textContent', 'Buat Listing');
+        safeSet('btn-save-listing-text',  'textContent', 'Simpan & Pilih Paket Sewa');
+        safeClass('modal-create-listing', 'remove', 'hidden');
     }
 
     function editListing(jsonStr) {
         const l = JSON.parse(jsonStr);
-        document.getElementById('edit-listing-id').value   = l.id || '';
-        document.getElementById('listing-name').value      = l.productName || '';
-        document.getElementById('listing-desc').value      = l.description || '';
-        document.getElementById('listing-price').value     = l.price || '';
-        document.getElementById('listing-image').value     = l.imageUrl || '';
-        document.getElementById('listing-contact').value   = l.contactInfo || '';
-        document.getElementById('listing-category').value  = l.category || 'Lainnya';
-        document.getElementById('modal-listing-title').textContent  = 'Edit Listing';
-        document.getElementById('btn-save-listing-text').textContent = 'Simpan';
-        document.getElementById('modal-create-listing').classList.remove('hidden');
+        safeSet('edit-listing-id',   'value', l.id || '');
+        safeSet('listing-name',      'value', l.productName || '');
+        safeSet('listing-desc',      'value', l.description || '');
+        safeSet('listing-price',     'value', l.price || '');
+        safeSet('listing-image',     'value', l.imageUrl || '');
+        safeSet('listing-contact',   'value', l.contactInfo || '');
+        safeSet('listing-category',  'value', l.category || 'Lainnya');
+        safeSet('modal-listing-title',   'textContent', 'Edit Listing');
+        safeSet('btn-save-listing-text', 'textContent', 'Simpan');
+        safeClass('modal-create-listing', 'remove', 'hidden');
     }
 
     function closeCreateModal() {
@@ -729,7 +751,13 @@
             closePlanModal();
             if (data.paymentUrl) {
                 showToastLocal('Menuju halaman pembayaran...');
-                setTimeout(() => { window.open(data.paymentUrl, '_blank'); }, 800);
+                setTimeout(() => {
+                    const newTab = window.open(data.paymentUrl, '_blank');
+                    // Jika popup diblokir browser, navigasi di tab yang sama
+                    if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+                        window.location.href = data.paymentUrl;
+                    }
+                }, 800);
             } else {
                 showToastLocal('Invoice dibuat! Cek WA/email untuk link bayar.');
             }
@@ -780,13 +808,13 @@
     // ─── Helpers ──────────────────────────────────────────────────────────────
     function getBuyerToken() {
         try {
-            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
+            const s = JSON.parse(sessionStorage.getItem('buyerSession') || '{}');
             return s.idToken || null;
         } catch { return null; }
     }
     function getBuyerUid() {
         try {
-            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
+            const s = JSON.parse(sessionStorage.getItem('buyerSession') || '{}');
             return s.uid || null;
         } catch { return null; }
     }
