@@ -808,13 +808,13 @@
     // ─── Helpers ──────────────────────────────────────────────────────────────
     function getBuyerToken() {
         try {
-            const s = JSON.parse(sessionStorage.getItem('buyerSession') || '{}');
+            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
             return s.idToken || null;
         } catch { return null; }
     }
     function getBuyerUid() {
         try {
-            const s = JSON.parse(sessionStorage.getItem('buyerSession') || '{}');
+            const s = JSON.parse(localStorage.getItem('evr_buyer_session') || '{}');
             return s.uid || null;
         } catch { return null; }
     }
