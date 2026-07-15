@@ -1,4 +1,5 @@
 import express from 'express';
+import pool from "./database.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,6 +24,7 @@ const { default: myOrders }          = await import('./lib/my-orders.js');
 const { default: rentalListing }     = await import('./lib/rental-listing.js');
 const { default: rentalPayment }     = await import('./lib/rental-payment.js');
 const { default: rentalCallback }    = await import('./lib/rental-callback.js');
+const { default: initDb } = await import('./lib/init-db.js');
 
 // ── MAINTENANCE MODE ──────────────────────────────────────────────────
 // Set MAINTENANCE_MODE=true di Railway Variables untuk aktifkan
@@ -66,6 +68,7 @@ app.get('/sosmed',          (req, res) => res.sendFile(path.join(__dirname, 'sos
 app.get('/sewa',            (req, res) => res.sendFile(path.join(__dirname, 'sewa.html')));
 app.get('/sewa.html',       (req, res) => res.sendFile(path.join(__dirname, 'sewa.html')));
 app.get('/payment-success', (req, res) => res.sendFile(path.join(__dirname, 'payment-success.html')));
+app.get('/api/init-db', initDb);
 
 // Fallback ke index.html
 app.get('*', (req, res) => {
@@ -74,6 +77,14 @@ app.get('*', (req, res) => {
     if (err) res.sendFile(path.join(__dirname, 'index.html'));
   });
 });
+
+try {
+  const result = await pool.query("SELECT NOW()");
+  console.log("✅ PostgreSQL Connected!");
+  console.log(result.rows[0]);
+} catch (err) {
+  console.error("❌ PostgreSQL Error:", err.message);
+}
 
 app.listen(PORT, () => {
   console.log(`EVERASTORE running on port ${PORT}`);
